@@ -47,7 +47,12 @@ class MurmurServer(object):
 
 	def deleteUser(self, id):
 		self.obj.unregisterPlayer(id, dbus_interface = server_interface)
-	
+
+	def start(self):
+		self.meta.obj.start(self.id, dbus_interface = meta_interface)
+
+	def stop(self):
+		self.meta.obj.stop(self.id, dbus_interface = meta_interface)
 
 class MurmurUser(object):
 	id = None
@@ -104,6 +109,9 @@ parser.add_option("-l","--list-users", dest="action", help="list users", action=
 parser.add_option("-p","--change-password", dest="action", help="change a user's password", action="store_const", const="change-password")
 parser.add_option("-g","--print-config", dest="action", help="print configuration values (optional: value)", action="store_const", const="print-config")
 parser.add_option("-G","--set-config", dest="action", help="set configuration value (key, value)", action="store_const", const="set-config")
+parser.add_option("-r","--start", dest="action", help="start server", action="store_const", const="start")
+parser.add_option("-R","--restart", dest="action", help="restart server", action="store_const", const="restart")
+parser.add_option("-t","--stop", dest="action", help="stop server", action="store_const", const="stop")
 
 (opts, args) = parser.parse_args()
 
@@ -119,6 +127,19 @@ if "list-servers" == opts.action:
 	for server in meta.getAllServers():
 		conf = server.getConfig()
 		print tpl % (server.id, conf['host'], int(conf['port']))
+elif "start" == opts.action:
+	reqopt(opts, ['server'])
+	server = meta.getServer(opts.server)
+	server.start()
+elif "stop" == opts.action:
+	reqopt(opts, ['server'])
+	server = meta.getServer(opts.server)
+	server.stop()
+elif "restart" == opts.action:
+	reqopt(opts, ['server'])
+	server = meta.getServer(opts.server)
+	server.stop()
+	server.start()
 elif "print-config" == opts.action:
 	reqopt(opts, ['server'])
 	server = meta.getServer(opts.server)
@@ -138,7 +159,6 @@ elif "set-config" == opts.action:
 	server = meta.getServer(opts.server)
 	server.setConfig(args[0],args[1])
 	print formatconfig(args[0], server.getConfig()[args[0]])
-	
 elif "list-users" == opts.action:
 	reqopt(opts, ['server'])
 	tpl =    "%4d  %20s  %20s"
@@ -167,6 +187,5 @@ elif "change-password" == opts.action:
 	user.password = getpass("new password for %s: " % user.name)
 	user.save()
 	print "password changed"
-	
 else:
 	fatal("Unknown action \"%s\" - this should not happen" % action)

@@ -135,23 +135,26 @@ meta = MurmurMeta(dbus.SessionBus() if opts.session else dbus.SystemBus())
 if not opts.action: fatal("No action specified. See --help for a list of actions")
 
 if "list-servers" == opts.action:
-	tpl =    "%3d  %15s  %5d" 
-	header = "%3s  %15s  %-5s" % ("id","host","port")
+	tpl =    "%3d  %15s  %5d  %s" 
+	header = "%3s  %15s  %-5s  %s" % ("id","host","port","name")
 	print header
 	for server in meta.getAllServers():
 		conf = server.getConfig()
-		print tpl % (server.id, conf['host'], int(conf['port']))
+		print tpl % (server.id, conf['host'], int(conf['port']), conf['registername'])
 elif "start" == opts.action:
 	reqopt(opts, ['server'])
 	server = meta.getServer(opts.server)
+	print "stopping server %d..." % server.id
 	server.start()
 elif "stop" == opts.action:
 	reqopt(opts, ['server'])
 	server = meta.getServer(opts.server)
+	print "stopping server %d..." % server.id
 	server.stop()
 elif "restart" == opts.action:
 	reqopt(opts, ['server'])
 	server = meta.getServer(opts.server)
+	print "restarting server %d..." % server.id
 	server.stop()
 	server.start()
 elif "new-server" == opts.action:

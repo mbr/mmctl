@@ -23,6 +23,9 @@ class MurmurMeta(object):
 	def getServer(self, id):
 		return MurmurServer(self, id)
 
+	def newServer(self):
+		return MurmurServer(self, self.obj.newServer(dbus_interface = meta_interface))
+
 class MurmurServer(object):
 	def __init__(self, meta, id):
 		self.meta = meta
@@ -53,6 +56,15 @@ class MurmurServer(object):
 
 	def stop(self):
 		self.meta.obj.stop(self.id, dbus_interface = meta_interface)
+
+	def destroy(self):
+		self.meta.obj.deleteServer(self.id, dbus_interface = meta_interface)
+
+	def __unicode__(self):
+		return u"<Server:%d>" % self.id
+
+	def __repr__(self):
+		return self.__unicode__()
 
 class MurmurUser(object):
 	id = None
@@ -103,6 +115,8 @@ parser.add_option("-S","--session", dest="session", help="use session instead of
 parser.add_option("-s","--server", dest="server", help="server id (only used with some commands)", type="int", action="store")
 parser.add_option("-u","--user", dest="user", help="user id to be modified (only used with some commands)", type="int", action="store")
 parser.add_option("-L","--list-servers", dest="action", help="list servers", action="store_const", const="list-servers")
+parser.add_option("-n","--new-server", dest="action", help="create a new server", action="store_const", const="new-server")
+parser.add_option("-D","--delete-server", dest="action", help="delete a server", action="store_const", const="delete-server")
 parser.add_option("-c","--create-user", dest="action", help="create a new user (name, email)", action="store_const", const="create-user")
 parser.add_option("-d","--delete-user", dest="action", help="delete a user", action="store_const", const="delete-user")
 parser.add_option("-l","--list-users", dest="action", help="list users", action="store_const", const="list-users")
@@ -140,6 +154,15 @@ elif "restart" == opts.action:
 	server = meta.getServer(opts.server)
 	server.stop()
 	server.start()
+elif "new-server" == opts.action:
+	server = meta.newServer()
+	print server
+elif "delete-server" == opts.action:
+	reqopt(opts, ['server'])
+	server = meta.getServer(opts.server)
+	sid = server.id
+	server.destroy()
+	print "deleted server %d" % sid
 elif "print-config" == opts.action:
 	reqopt(opts, ['server'])
 	server = meta.getServer(opts.server)

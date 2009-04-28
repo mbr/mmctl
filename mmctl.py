@@ -34,6 +34,9 @@ class MurmurServer(object):
 		conf.update(dict(self.meta.obj.getAllConf(self.id, dbus_interface = meta_interface)))
 		return conf
 
+	def setConfig(self, key, value):
+		conf = self.meta.obj.setConf(self.id, key, value, dbus_interface = meta_interface)
+
 	def getUserById(self, id):
 		u = MurmurUser(self)
 		u._load(id)
@@ -85,6 +88,9 @@ def reqopt(opts, opt_reqs):
 	for opt in opt_reqs:
 		if not hasattr(opts, opt) or None == getattr(opts,opt): fatal("%s requires the following options: %s. See --help for details." % (opts.action, " ".join(opt_reqs)))
 
+def formatconfig(k, v):
+	return "** %s **\n%s\n" % (k,v)
+
 # parse options
 parser = OptionParser(version="%prog 0.1",
                       description="A command-line interface for murmur, the mumble server.")
@@ -96,6 +102,8 @@ parser.add_option("-c","--create-user", dest="action", help="create a new user (
 parser.add_option("-d","--delete-user", dest="action", help="delete a user", action="store_const", const="delete-user")
 parser.add_option("-l","--list-users", dest="action", help="list users", action="store_const", const="list-users")
 parser.add_option("-p","--change-password", dest="action", help="change a user's password", action="store_const", const="change-password")
+parser.add_option("-g","--print-config", dest="action", help="print configuration values (optional: value)", action="store_const", const="print-config")
+parser.add_option("-G","--set-config", dest="action", help="set configuration value (key, value)", action="store_const", const="set-config")
 
 (opts, args) = parser.parse_args()
 
@@ -111,6 +119,26 @@ if "list-servers" == opts.action:
 	for server in meta.getAllServers():
 		conf = server.getConfig()
 		print tpl % (server.id, conf['host'], int(conf['port']))
+elif "print-config" == opts.action:
+	reqopt(opts, ['server'])
+	server = meta.getServer(opts.server)
+	if 0 == len(args):
+		for (k,v) in server.getConfig().items():
+			print formatconfig(k,v)
+	elif 1 == len(args):
+		try:
+			print formatconfig(args[0], server.getConfig()[args[0]])
+		except KeyError:
+			fatal("No configuration options \"%s\"" % args[0])
+	else:
+		fatal("Too many arguments for print-config")
+elif "set-config" == opts.action:
+	reqopt(opts, ['server'])
+	nargs(opts.action, args, ['key','value'])
+	server = meta.getServer(opts.server)
+	server.setConfig(args[0],args[1])
+	print formatconfig(args[0], server.getConfig()[args[0]])
+	
 elif "list-users" == opts.action:
 	reqopt(opts, ['server'])
 	tpl =    "%4d  %20s  %20s"

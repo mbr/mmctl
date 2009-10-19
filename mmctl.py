@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+import socket
+import urllib
+from email.mime.text import MIMEText
+import smtplib
 import dbus
 import sys
 from getpass import getpass
@@ -8,6 +12,9 @@ from optparse import OptionParser
 murmur_bus_name = 'net.sourceforge.mumble.murmur'
 meta_interface = 'net.sourceforge.mumble.Meta'
 server_interface = 'net.sourceforge.mumble.Murmur'
+
+default_mailserver = 'localhost'
+default_mailport = 25
 
 class MurmurMeta(object):
 	def __init__(self, bus):
@@ -83,7 +90,9 @@ class MurmurUser(object):
 		if None == self.id:
 			self.id = self.server.obj.registerPlayer(self.name, dbus_interface = server_interface)
 
-		self.server.obj.setRegistration(self.id, self.name, self.email, self.password, dbus_interface = server_interface)
+		if hasattr(self,'password'): self.server.obj.setRegistration(self.id, self.name, self.email, self.password, dbus_interface = server_interface)
+		else:
+			self.server.obj.updateRegistration( (self.id, self.name, self.email, ''), dbus_interface = server_interface )
 		return self.id
 
 	def __unicode__(self):
@@ -108,6 +117,30 @@ def reqopt(opts, opt_reqs):
 def formatconfig(k, v):
 	return "** %s **\n%s\n" % (k,v)
 
+def sendmail(to_address, subject, body):
+	(host, port) = urllib.splitnport(opts.mailserver, default_mailport)
+
+	m = MIMEText(body)
+	m['Subject'] = subject
+	m['To'] = to_address
+
+	from_address = None
+	if not opts.from_address:
+		server = meta.getServer(opts.server)
+		u = server.getUserById(1)
+		if not u.email:
+			print u"cannot send email - no email set for %s" % u
+			return
+		from_address = '%s <%s>' % (u.name, u.email)
+	else:
+		from_address = opts.from_address
+
+	m['From'] = from_address
+
+	s = smtplib.SMTP(host, port)
+	s.sendmail(m['From'], m['To'], m.as_string())
+	print u"sent email from %s to %s: %s" % (m['From'], m['To'], m['Subject'])
+
 # parse options
 parser = OptionParser(version="%prog 0.1",
                       description="A command-line interface for murmur, the mumble server.")
@@ -120,12 +153,16 @@ parser.add_option("-D","--delete-server", dest="action", help="delete a server",
 parser.add_option("-c","--create-user", dest="action", help="create a new user (name, email)", action="store_const", const="create-user")
 parser.add_option("-d","--delete-user", dest="action", help="delete a user", action="store_const", const="delete-user")
 parser.add_option("-l","--list-users", dest="action", help="list users", action="store_const", const="list-users")
+parser.add_option("-e","--change-email", dest="action", help="change a user's email", action="store_const", const="change-email")
 parser.add_option("-p","--change-password", dest="action", help="change a user's password", action="store_const", const="change-password")
 parser.add_option("-g","--print-config", dest="action", help="print configuration values (optional: value)", action="store_const", const="print-config")
 parser.add_option("-G","--set-config", dest="action", help="set configuration value (key, value)", action="store_const", const="set-config")
 parser.add_option("-r","--start", dest="action", help="start server", action="store_const", const="start")
 parser.add_option("-R","--restart", dest="action", help="restart server", action="store_const", const="restart")
 parser.add_option("-t","--stop", dest="action", help="stop server", action="store_const", const="stop")
+parser.add_option("","--testmail", dest="action", help="test email sending capabilities (will send an email to specified user)", action="store_const", const="testmail")
+parser.add_option("-M","--mailserver", dest="mailserver", help="The mailserver address to use. Defaults to 'localhost:25'.", action="store", default=default_mailserver)
+parser.add_option("-F","--from-address", dest="from_address", help="The From: address used when sending an email. Defaults to the email address of the user with uid 1.")
 
 (opts, args) = parser.parse_args()
 
@@ -213,5 +250,17 @@ elif "change-password" == opts.action:
 	user.password = getpass("new password for %s: " % user.name)
 	user.save()
 	print "password changed"
+elif "change-email" == opts.action:
+	reqopt(opts, ['server','user'])
+	server = meta.getServer(opts.server)
+	nargs(opts.action, args, ['email'])
+	user = server.getUserById(opts.user)
+	user.email = args[0]
+	user.save()
+	print "email changed"
+elif "testmail" == opts.action:
+	reqopt(opts, ['server'])
+	nargs(opts.action, args, ['email'])
+	sendmail(args[0], 'Mumble server test message', 'If you can read this message, your mumble server can send email. It will use the user with uid 1 as the sender.')
 else:
 	fatal("Unknown action \"%s\" - this should not happen" % action)

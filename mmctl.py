@@ -163,6 +163,7 @@ parser.add_option("-t","--stop", dest="action", help="stop server", action="stor
 parser.add_option("","--testmail", dest="action", help="test email sending capabilities (will send an email to specified user)", action="store_const", const="testmail")
 parser.add_option("-M","--mailserver", dest="mailserver", help="The mailserver address to use. Defaults to 'localhost:25'.", action="store", default=default_mailserver)
 parser.add_option("-F","--from-address", dest="from_address", help="The From: address used when sending an email. Defaults to the email address of the user with uid 1.")
+parser.add_option("-E","--send-mail", action="store_true", dest="send_mail", default=False, help="send an email to a user when his password changed or his account got created")
 
 (opts, args) = parser.parse_args()
 
@@ -238,6 +239,11 @@ elif "create-user" == opts.action:
 	user.email = args[1]
 	user.save()
 	print "new user: %s" % user
+	if opts.send_mail:
+		if user.email:
+			sendmail(user.email, "Mumble account created.", "Hello %s,\r\n\r\nyour new mumble account is ready.\r\n\r\nYour username: %s\r\n\r\nBest regards,\r\n\r\n%s (admin)" % (user.name, user.name, server.getUserById(1).name))
+		else:
+			print "not sending email, because user does not have an email address registered"
 elif "delete-user" == opts.action:
 	reqopt(opts, ['server','user'])
 	server = meta.getServer(opts.server)
@@ -247,9 +253,15 @@ elif "change-password" == opts.action:
 	reqopt(opts, ['server','user'])
 	server = meta.getServer(opts.server)
 	user = server.getUserById(opts.user)
-	user.password = getpass("new password for %s: " % user.name)
+	pw = getpass("new password for %s: " % user.name)
+	user.password = pw
 	user.save()
 	print "password changed"
+	if opts.send_mail:
+		if user.email:
+			sendmail(user.email, "Your mumble password has been changed.", "Hello %s,\r\n\r\nyour password on has been changed to \r\n\r\n%s\r\n\r\nby the administrator. You may keep a copy of this email for future reference.\r\n\r\nBest regards,\r\n\r\n%s (admin)" % (user.name, pw, server.getUserById(1).name))
+		else:
+			print "not sending email, because user does not have an email address registered"
 elif "change-email" == opts.action:
 	reqopt(opts, ['server','user'])
 	server = meta.getServer(opts.server)

@@ -1,0 +1,47 @@
+mmctl: A script to manage your mumble server.
+=============================================
+written by Marc Brinkmann (http://marcbrinkmann.de). I'm always happy about comments, patches or anything else you can come up with. Licensed under the MIT-License.
+
+Requirements
+------------
+The script was tested on Ubuntu, with mumble 1.3 and later. The required packages are:
+ - python
+ - python-dubs
+
+Usage
+-----
+Start the script with --help to get a list of all options. Here are a few examples:
+
+### Creating a new server
+
+	`$ python mmctl.py --new-server`
+
+It will spit out the ID of the new server after creation.
+
+### Listing all (virtual) servers currently runnung:
+
+	`$ python mmctl.py --list-servers`
+
+This will give you a list of servers with IDs.
+
+### Listing all users on a server
+
+To list all users on a server (in this example, server #3), run
+
+	`$ python mmctl.py --server 3 --list-users`
+
+### Adding a user
+
+You will need to specify the server ID with 
+
+	`$ python mmctl.py --server 3 --send-mail --create-user michaelb michaelb@inittec.invalid`
+
+This will create a user called "michaelb" on server number 3, show his ID and set his email address to michaelb@inittec.invalid. After the creation, an email will be sent to that user notifiying about the account creation, this can be suppressed by omitting the `--send-mail` parameter. "michaelb" will not be able to login, because he has no password set (see below).
+
+### Setting the password for a user
+
+You need to know the server ID and the users ID for this. Assuming that the server ID is 3 and the users ID is 7, you can set a password for that user like this:
+
+	`$ python mmctl.py --server 3 --user 7 --change-password --send-mail`
+
+This will prompt you for a new password for the user (once) and send the user an email with his new password. You can of course chose to not do the latter by omitting `--send-mail`.

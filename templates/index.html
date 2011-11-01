@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<link rel="stylesheet" type="text/css" href="http://github.com/mbr/draft-css/raw/master/simple-ssbw.css">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
+
+<style type="text/css">
+</style>
+
+<script type="text/javascript">
+function transformToICEObject(o) {
+	$(o).each(function() {
+		if (o['$ICEREF']) {
+			// make object an ICEObject
+			o.__proto__ = ICEObject.prototype;
+		}
+	});
+}
+
+function ICEObject(iceString) {
+	this['$ICEREF'] = iceString;
+}
+
+
+ICEObject.prototype.ice_call = function (funcname, onReturn) {
+	// collect args
+	var args = Array.prototype.slice.call(arguments, 2);
+
+	console.log('calling ', funcname, ' on ', this, ' with args ', args);
+
+	// make request
+	$.ajax({
+				data: JSON.stringify(
+				   {args: args,
+					target: this['$ICEREF'],
+					method_name: funcname}),
+				success: function(data, textStatus, jqXHR) {
+						console.log('result of ' + funcname + ' call:', data);
+						if (! data.error) {
+							var returnValue = transformToICEObject(data.returnValue);
+							if (onReturn) onReturn(returnValue);
+						}
+					},
+				url: $API_CALL,
+				type: 'POST',
+				contentType: 'application/json; charset=utf-8'
+			});
+}
+
+$(document).ready(function() {
+	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	$API_CALL = $SCRIPT_ROOT + '/api/call/';
+
+	// DEBUG: simple test
+	console.log('testing with meta');
+	new ICEObject('meta').ice_call('getBootedServers');
+});
+</script>
+</head>
+<body>
+Test 123
+
+</body>
+</html>

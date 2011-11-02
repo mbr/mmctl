@@ -49,28 +49,11 @@ def get_server_port(meta, server):
 # create flask app
 app = Flask(__name__)
 
+
 @app.route('/')
 def index():
-    return render_template('index.html', connected_to='localhost:?????')
+    return render_template('index.html', version=meta.getVersion()[3])
 
-@app.route('/api/call/', methods=('POST',))
-def api_meta():
-    args = request.json['args'] or []
-    target = request.json['target']
-
-    if 'meta' == target:
-        target_obj = meta
-    else:
-        # gotta find the target through ice first
-        prx = ic.stringToProxy(target)
-
-        target_obj = factories[prx.ice_id()].checkedCast(prx)
-
-    method = getattr(target_obj,
-                     request.json['method_name'])
-
-    result = method(*args)
-    return jsonify(returnValue=resuserssult)
 
 @app.route('/api/list-servers/')
 def api_list_servers():
@@ -96,11 +79,20 @@ def api_list_servers():
 
     return jsonify(servers=servers)
 
+
+@app.route('/api/get-global-config/')
+def api_get_global_config():
+    conf = meta.getDefaultConf()
+
+    return jsonify(globalConf = conf)
+
+
 @app.route('/api/create-server/', methods=('POST',))
 def api_create_server():
     server = meta.newServer()
 
     return jsonify(server_id=server.id())
+
 
 @app.route('/api/delete-server/', methods=('POST',))
 def api_delete_server():
@@ -113,12 +105,14 @@ def api_delete_server():
 
     return jsonify()
 
+
 @app.route('/api/stop-server/', methods=('POST',))
 def api_stop_server():
     server = meta.getServer(request.json['server_id'])
     server.stop();
 
     return jsonify()
+
 
 @app.route('/api/start-server/', methods=('POST',))
 def api_start_server():
@@ -127,5 +121,6 @@ def api_start_server():
 
     return jsonify()
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

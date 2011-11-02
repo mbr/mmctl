@@ -6,8 +6,10 @@
 <link rel="stylesheet" href="{{url_for('.static', filename='css/bootstrap.min.css')}}">
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/jquery.tablesorter.min.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/jquery.scrollTo-1.4.2-min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.cookie.js')}}"></script>
 
 <script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-twipsy.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-alerts.js')}}"></script>
@@ -15,6 +17,7 @@
 <script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-modal.js')}}"></script>
 
 <script type="text/javascript" src="{{url_for('.static', filename='js/rpc.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/murmur-data.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/ui.js')}}"></script>
 
 <style type="text/css">
@@ -44,6 +47,10 @@
 
 	  td button {
 	  	  margin: 0em 1em;
+	  }
+
+	  .topbar p {
+	  	  color: gray;
 	  }
 </style>
 
@@ -75,19 +82,20 @@ $(document).ready(function() {
         <div class="container-fluid">
           <a class="brand" href="#">mmctl</a>
           <ul class="nav">
-            <li class="active"><a href="#">Servers</a></li>
-            <li><a>Global Configuration</a></li>
-            <li><a>About</a></li>
+            <li><a href="#server-page">Servers</a></li>
+            <li><a href="#configuration-page">Global Configuration</a></li>
+            <li><a href="#">About</a></li>
           </ul>
-          <p class="pull-right">connected to </p>
+          <p class="pull-right">connected to Murmur <strong>{{version}}</strong></p>
         </div>
       </div>
     </div>
     <div id="global-alerts">
     </div>
+
+<!-- server list -->
     <div class="container mainpage" id="server-page">
       <div class="content">
-        <!-- Main hero unit for a primary marketing message or call to action -->
         <div class="hero-unit">
           <h1>Welcome to mmctl</h1>
           <p>mmctl is a web-based <a href="http://mumble.sf.net" title="Mumble homepage">Murmur</a> administration tool. Select a server below or create a new one to begin configuration.</p>
@@ -122,9 +130,39 @@ $(document).ready(function() {
       </div>
     </div>
 
+<!-- global configuration -->
+    <div class="container mainpage" id="configuration-page">
+      <div class="content">
+        <div class="row">
+          <div class="span16">
+            <h2>Global configuration</h2>
+            <p>You can view the global configuration here. Values can either be overriden in individual servers or configured through <code>murmur.ini</code>.</p>
+
+            <table class="zebra-striped" id='global-configuration'>
+				<thead>
+					<tr>
+						<th>Option</th>
+						<th>Value</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>loading...</td>
+						<td>loading...</td>
+						<td>loading...</td>
+					</tr>
+				</tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
 <!-- footer gets attached to current page dynamically -->
 <footer>
-  <p>&copy; <a href="https://mbr.github.com" title="Marc's github page">Marc Brinkmann 2011</a></p>
+  <p>&copy; <a href="https://github.com/mbr" title="Marc's github page">Marc Brinkmann 2011</a></p>
 </footer>
 
 <!-- dialogs -->

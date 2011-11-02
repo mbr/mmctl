@@ -1,6 +1,7 @@
 function init_ui() {
 	$('.alert-message').alert();
 	refreshServerList();
+	refreshGlobalConfiguration();
 
 	$('#server-list').tablesorter();
 
@@ -42,11 +43,22 @@ function init_ui() {
 		'keyboard': true,
 		'backdrop': 'static'
 	});
+
 	$('#confirm-dialog-cancel').click(function() {
 		$('#confirm-dialog').modal('hide');
 	});
+	
+	$('ul.nav li a').click(function () {
+		var target = $(this).attr('href').substring(1);
 
-	selectMainPage('server-page');
+		selectMainPage(target);
+		return false;
+	});
+
+	if ($.cookie('last-page'))
+		selectMainPage($.cookie('last-page'));
+	else
+		selectMainPage('server-page');
 }
 
 function confirmDialog(title, message, action, actionClass, on_ok) {
@@ -82,6 +94,32 @@ function createGlobalAlert(alertClass, message) {
 	append('<a class="close" href="#">&times;</a>').
 	append(message).
 	appendTo($('#global-alerts'));
+}
+
+function refreshGlobalConfiguration() {
+	var globalConf = mmctlServer.callAPI(
+		'get-global-config',
+		{},
+		function(data) {
+			var confList = $('#global-configuration tbody').empty();
+
+			$.each(data.globalConf, function(k, v) {
+				var help = murmurConfigurationOptions[k] || '';
+				$('<tr>').append(
+					$('<th>').text(k),
+					$('<td>').text(v),
+					$('<td>').append('<p>' + help + '</p>')
+				).appendTo(confList);
+			});
+
+			var tbl = $('#global-configuration');
+
+			if (tbl[0].config)
+				tbl.trigger('update');
+			else
+				tbl.tablesorter({ sortList: [[0,0]] });
+		}
+	)
 }
 
 function refreshServerList(success) {
@@ -165,8 +203,26 @@ function refreshServerList(success) {
 }
 
 function selectMainPage(id) {
+	var next = $('ul.nav li a[href="#' + id + '"]').parent();
+
+	// get current and find out if we're traveling left or right
+//	var current = $('ul.nav li.active a').parent();
+
+//	travelingRight = (-1 == next.prevAll().index(current));
+
+	// remove all active
+	$('ul.nav li').removeClass('active');
+	$('.mainpage').hide();
+
+	// set new active in menu bar
+	next.addClass('active');
+
+	// move footer and show content
 	var footer = $('footer');
 	footer.remove();
-	$('.mainpage').hide();
+
 	$('#' + id).append(footer).show();
+
+	// set a cookie to remember which page was visited last
+	$.cookie('last-page', id, { expires: 365 })
 }

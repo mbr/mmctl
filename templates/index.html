@@ -21,37 +21,16 @@
 <script type="text/javascript" src="{{url_for('.static', filename='js/ui.js')}}"></script>
 
 <style type="text/css">
-      body {
-        padding-top: 60px;
-      }
-
-      .mainpage {
-      	  display: none;
-	  }
-
-	  .clickable {
-	  	  cursor: pointer;
-	  }
-
-	  td.small {
-	  	  width: 2em;
-	  }
-
-	  td.medium {
-	  	  width: 12em;
-	  }
-
-	  td.large {
-	  	  width: 30em;
-	  }
-
-	  td button {
-	  	  margin: 0em 1em;
-	  }
-
-	  .topbar p {
-	  	  color: gray;
-	  }
+body { padding-top: 60px; }
+.mainpage { display: none; }
+.clickable { cursor: pointer; }
+td.small { width: 1em; }
+td.medium { width: 14em; }
+td.large { width: 30em; }
+td button { margin: 0em 0.5em; }
+td.running { width: 16em; }
+.topbar p { color: gray; }
+.unnamed { font-style: italic; }
 </style>
 
 <script type="text/javascript">
@@ -60,8 +39,6 @@ $(document).ready(function() {
 	mmctlServer = new mmctlAPI(
 		$SCRIPT_ROOT + '/api',
 		function(jqXHR, textStatus, errorThrown) {
-			console.log(textStatus);
-			console.log(errorThrown);
 			createGlobalAlert(
 				'error',
 				$('<span><strong>XHR-error</strong>: </span>').
@@ -173,6 +150,40 @@ $(document).ready(function() {
           <p>The first version of <strong>mmctl</strong> was written when I wanted to play a game with a friend and could not properly configure murmur fast enough. One hour later he had leave and I promptly started scratching the newfound itch.</p>
 		  <p>mmctl is available on <a href="https://github.com/mbr/mmctl" title="mmctl's GitHub page">GitHub</a>. Feel free to send me feedback, suggestions or anything else.</p>
 		  <p>Other than numerous jQuery plugins, mmctl uses <a href="http://twitter.github.com/bootstrap/" title="Bootstrap, from Twitter">Bootstrap</a>, which I think is the best thing <a href="http://twitter.com" title="Twitter">Twitter</a> has ever given me.
+        </div>
+
+      </div>
+    </div>
+
+<!-- edit server page -->
+    <div class="container mainpage" id="server-detail-page">
+      <div class="content">
+        <div class="row">
+          <div class="span16">
+            <h2 id="server-detail-title">Server not loaded</h2>
+            <p id="server-detail-status">has been running for ???</p>
+          </div>
+        <div class="row">
+          <div class="span8">
+            <h3>Users and Groups</h3>
+            <p>foo bar baz</p>
+          </div>
+          <div class="span8">
+            <h3>Log</h3>
+            <div id='server-log-pagination'>
+			</div>
+            <table class="zebra-striped" id='server-log'>
+				<thead>
+					<tr>
+						<th>Time</th>
+						<th>Entry</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr><td>loading...</td></tr>
+				</tbody>
+            </table>
+          </div>
         </div>
 
       </div>

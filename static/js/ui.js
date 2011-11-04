@@ -1,18 +1,62 @@
-function init_ui() {
-	$('.alert-message').alert();
-	refreshServerList();
-	refreshGlobalConfiguration();
+(function($) {
+	$.fn.BootstrapPager = function(pager, callback) {
+		this.each(function() {
+			var pg = $('<ul>');
+			if (null != pager.prev) {
+				var prevLink = $('<a href="#">&larr; Previous</a>');
+				var prev = $('<li class="prev">').append(prevLink);
+				if (-1 != pager.prev)
+					prevLink.click(function() { callback(pager.page-1); return false; });
+				else {
+					prev.addClass('disabled').click(function() {return false;});
+				}
+				pg.append(prev);
+			}
 
+			if (pager.pages)
+				$.each(pager.pages, function(index, pNum) {
+					var pNumInt = parseInt(pNum);
+					var item = ($('<li>').append(
+						$('<a href="#">')
+					    .text(pNum)
+					    ));
+					if (isNaN(pNumInt))
+						item.addClass('disabled')
+						    .click(function() {return false;});
+					else
+						item.click(function() { callback(parseInt($(this).text())); return false; })
+					if (pNumInt == pager.page)
+						item.addClass('active');
+					pg.append(item);
+				});
+
+			if (null != pager.next) {
+				var nextLink = $('<a href="#">Next &rarr;</a>');
+				var next = $('<li class="next">').append(nextLink);
+				if (-1 != pager.next)
+					nextLink.click(function() { callback(pager.page+1); return false; });
+				else {
+					next.addClass('disabled').click(function() {return false;});
+				}
+				pg.append(next);
+			}
+			$(this).empty().addClass('pagination').append(pg);
+		});
+	};
+})( jQuery );
+
+function init_ui() {
+	/* server list page */
 	$('#server-list').tablesorter();
 
 	$('.create-server-button').click(function() {
 		mmctlServer.callAPI(
 			'create-server',
-			{},
+			null,
 			function(data) {
 				refreshServerList(function() {
 					// scroll to newly created item
-					var newRow = $('tr[data-server-id=' + data.server_id + ']'); 
+					var newRow = $('tr[data-server-id=' + data.server_id + ']');
 					$.scrollTo(newRow);
 					newRow.
 					twipsy({
@@ -33,6 +77,7 @@ function init_ui() {
 		refreshServerList();
 	});
 
+	/* global */
 	$('.table-check-all input[type="checkbox"]').change(function() {
 		$(this).closest('table').find('input[type="checkbox"][name="' + this.name + '[]"]').attr('checked', $(this).attr('checked'));
 	});
@@ -47,7 +92,7 @@ function init_ui() {
 	$('#confirm-dialog-cancel').click(function() {
 		$('#confirm-dialog').modal('hide');
 	});
-	
+
 	$('ul.nav li a').click(function () {
 		var target = $(this).attr('href').substring(1);
 
@@ -55,10 +100,68 @@ function init_ui() {
 		return false;
 	});
 
+	$('.alert-message').alert();
+
+
+	/* load configuration */
+	refreshServerList();
+	refreshGlobalConfiguration();
+
+	/* load last selected page */
+	if ($.cookie('active-server'))
+		loadServer($.cookie('active-server'));
+
 	if ($.cookie('last-page'))
 		selectMainPage($.cookie('last-page'));
 	else
 		selectMainPage('server-page');
+
+}
+
+function loadServerConfig(serverId) {
+	mmctlServer.callAPI(
+		'get-server-config' + '/' + serverId,
+		null,
+		function(data) {
+			var serverName = data.config.registername || $('<span class="unnamed">Unnamed server</span>');
+			$('#server-detail-title').empty().append('(#' + data.serverId + ') ').append(serverName);
+
+			if (data.isRunning)
+				$('#server-detail-status').text('has been running for ' + data.fuzzyUptime + '.');
+			else
+				$('#server-detail-status').text('is not running.');
+		}
+	)
+}
+
+function loadServerLog(serverId, page) {
+	page = page || 1;
+	mmctlServer.callAPI(
+		'get-server-log' + '/' + serverId + '/' + page,
+		null,
+		function(data) {
+			var tbl = $('#server-log tbody').empty();
+
+			$.each(data.logEntries, function(index, entry) {
+				$('<tr>').append(
+					$('<td>').text(entry[3]).
+						attr('title', entry[2]).
+						twipsy(),
+					$('<td>').text(entry[1])
+				).appendTo(tbl);
+			});
+
+			$('#server-log-pagination').BootstrapPager(data.pager, function(page) {
+				loadServerLog(serverId, page);
+			});
+		}
+	)
+}
+
+function loadServer(serverId) {
+	$.cookie('active-server', serverId);
+	loadServerConfig(serverId);
+	loadServerLog(serverId);
 }
 
 function confirmDialog(title, message, action, actionClass, on_ok) {
@@ -99,7 +202,7 @@ function createGlobalAlert(alertClass, message) {
 function refreshGlobalConfiguration() {
 	var globalConf = mmctlServer.callAPI(
 		'get-global-config',
-		{},
+		null,
 		function(data) {
 			var confList = $('#global-configuration tbody').empty();
 
@@ -125,7 +228,7 @@ function refreshGlobalConfiguration() {
 function refreshServerList(success) {
 	var servers = mmctlServer.callAPI(
 		'list-servers',
-		{},
+		null,
 		function(data) {
 			// clear server list
 			var serverList = $('#server-list tbody').empty();
@@ -170,7 +273,7 @@ function refreshServerList(success) {
 						$('<td class="small">').text(server_id),
 						$('<td class="large">').text(server_name),
 						$('<td class="medium">').text(server_address),
-						$('<td>').append(running),
+						$('<td class="running">').append(running),
 						$('<td class="small">').text(this.users + '/' + this.maxusers),
 						$('<td class="small">').append($('<button class="btn small danger">Del</button>')
 							.click(function() {
@@ -192,6 +295,10 @@ function refreshServerList(success) {
 									});
 							}))
 					).attr('data-server-id', this.id)
+					 .click(function() {
+					 	 loadServer(server_id);
+					 	 selectMainPage('server-detail-page');
+					 })
 				)
 			});
 

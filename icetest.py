@@ -225,5 +225,15 @@ def api_get_server_log(server_id, page):
     )
 
 
+@app.route('/api/save-server-config/<int:server_id>/', methods=('POST',))
+def api_save_server_config(server_id):
+    server = meta.getServer(server_id)
+
+    for k,v in request.json['config'].iteritems():
+        server.setConf(k, v)
+
+    return api_get_server_config(server_id)
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

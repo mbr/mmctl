@@ -82,11 +82,23 @@ ServerConfiguration.prototype._update = function(key, value) {
 	/* update all linked */
 	$('*[data-config-link="' + key + '"]').val(function() {
 		return value;
-	});
+	}).trigger('config-update');
+	$('input[type="checkbox"][data-config-link="' + key + '"]').attr(
+		'checked',
+		('false' != value && '0' != value && '' != value)
+	);
 }
 
 ServerConfiguration.prototype.getAllValues = function() {
 	return $.extend({}, this.defaultConf, this.localConf, this.changedConf);
+}
+
+ServerConfiguration.prototype.getChangedValues = function() {
+	return $.extend({}, this.changedConf);
+}
+
+ServerConfiguration.prototype.hasChanged = function(key) {
+	return Boolean(this.changedConf[key]);
 }
 
 function init_ui() {
@@ -126,7 +138,7 @@ function init_ui() {
 		$(this).closest('table').find('input[type="checkbox"][name="' + this.name + '[]"]').attr('checked', $(this).attr('checked'));
 	});
 
-	$('.table-check-all').unbind('click').removeClass('header');
+	$('.table-check-all').off('click').removeClass('header');
 
 	$('#confirm-dialog').modal({
 		'keyboard': true,
@@ -154,9 +166,51 @@ function init_ui() {
 
 	/* server detail page */
 	currentServerConfig = new ServerConfiguration();
+	$(document).on('change', 'input[type="text"][data-config-link]', function() {
+		currentServerConfig.setValue($(this).attr('data-config-link'),
+		                             $(this).val())
+	});
+	$(document).on('change', 'input[type="checkbox"][data-config-link]', function() {
+		val = String(Boolean($(this).attr('checked')));
+		currentServerConfig.setValue($(this).attr('data-config-link'),
+		                             val);
+	});
+	$(currentServerConfig)
+	.on('changed', function() {
+		$('#server-config-save-button')
+			//.attr('disabled', false)
+			//.removeClass('disabled')
+			.addClass('primary');
+		$('#server-config-reload-button')
+			.addClass('danger');
+	})
+	.on('update', function() {
+		$('#server-config-save-button')
+			//.attr('disabled', 'disabled')
+			//.addClass('disabled')
+			.removeClass('primary');
+		$('#server-config-reload-button')
+			.removeClass('danger');
+	});
+	$('#server-config-save-button')
+	.click(function() {
+		// save config here
+		mmctlServer.callAPI(
+			'save-server-config/' + currentServerId,
+			{config: currentServerConfig.getChangedValues()},
+			function(data) {
+				loadServerConfig(currentServerId, data);
+			},
+			{type: 'post'});
+	});
+	$('#server-config-reload-button')
+	.click(function() {
+		loadServerConfig(currentServerId);
+	});
+
 
 	/* on server update */
-	$(currentServerConfig).bind('update', function() {
+	$(currentServerConfig).on('update', function() {
 		/* recreate configuration table */
 		var cfgTblBody = $('#server-configuration-table tbody').empty();
 		$.each(currentServerConfig.getAllValues(), function(k, v) {
@@ -175,14 +229,14 @@ function init_ui() {
 			var input = $('<input type="text" data-config-link="' + k + '">')
 				.val(currentServerConfig.getValue(k))
 				.change(function() {
-					$(this).parents('tr:eq(0)')
-					.addClass('changed')
-					.addClass('local-conf');
-
-					/* update conf */
-					/* no infinite loop here, as .val() doesn't trigger .change() */
 					currentServerConfig.setValue(k,	$(this).val());
 				})
+				.on('config-update', function() {
+					if (currentServerConfig.hasChanged($(this).attr('data-config-link')))
+						$(this).parents('tr:eq(0)')
+						.addClass('changed')
+						.addClass('local-conf');
+				});
 			row.append(
 				$('<td class="conf-key">').append(
 					$('<span>').text(k),
@@ -203,14 +257,15 @@ function init_ui() {
 								   placement: 'right',
 								   trigger: 'manual'});
 
-			/* update sorting */
-			var cfgTbl = $('#server-configuration-table table');
-			if (cfgTbl[0].config)
-				cfgTbl.trigger('update');
-			else {
-				cfgTbl.tablesorter({ sortList: [[0,0]] });
-			}
 		});
+
+		/* update sorting */
+		var cfgTbl = $('#server-configuration-table table');
+		if (cfgTbl[0].config)
+			cfgTbl.trigger('update');
+		else {
+			cfgTbl.tablesorter({ sortList: [[0,0]] });
+		}
 	});
 
 	/* load configuration */
@@ -228,26 +283,30 @@ function init_ui() {
 
 }
 
-function loadServerConfig(serverId) {
-	mmctlServer.callAPI(
-		'get-server-config' + '/' + serverId,
-		null,
-		function(data) {
-			currentServerConfig.updateConf(data.config, data.defaultConfig);
+function loadServerConfig(serverId, data) {
+	var onLoad = function(data) {
+		currentServerConfig.updateConf(data.config, data.defaultConfig);
 
-			/* update general data */
-			var serverName = currentServerConfig.getValue('registername') || $('<span class="unnamed">Unnamed server</span>');
-			$('#server-detail-title').empty().append('(#' + data.serverId + ') ').append(serverName);
+		/* update general data */
+		var serverName = currentServerConfig.getValue('registername') || $('<span class="unnamed">Unnamed server</span>');
+		$('#server-detail-title').empty().append('(#' + data.serverId + ') ').append(serverName);
 
-			if (data.isRunning)
-				$('#server-detail-status').text('has been running for ' + data.fuzzyUptime + '.');
-			else
-				$('#server-detail-status').text('is not running.');
+		if (data.isRunning)
+			$('#server-detail-status').text('has been running for ' + data.fuzzyUptime + '.');
+		else
+			$('#server-detail-status').text('is not running.');
 
-			$('#server-connect-link').attr('href', data.connectLink).text(data.connectLink);
+		$('#server-connect-link').attr('href', data.connectLink).text(data.connectLink);
+	}
 
-		}
-	)
+	if (data) onLoad(data);
+	else {
+		mmctlServer.callAPI(
+			'get-server-config' + '/' + serverId,
+			null,
+			onLoad
+		)
+	}
 }
 
 function loadServerLog(serverId, page) {
@@ -276,6 +335,7 @@ function loadServerLog(serverId, page) {
 
 function loadServer(serverId) {
 	$.cookie('active-server', serverId, { expires: 365 });
+	currentServerId = serverId;
 	loadServerConfig(serverId);
 	loadServerLog(serverId);
 }
@@ -297,9 +357,9 @@ function confirmDialog(title, message, action, actionClass, on_ok) {
 			dlg.modal('hide');
 		});
 
-	dlg.bind('hide', function() {
+	dlg.on('hide', function() {
 		// remove signal handlers, so its hard to accidentally trigger an old action
-		dlg.find('#confirm-dialog-confirm').unbind();
+		dlg.find('#confirm-dialog-confirm').off();
 
 		return false;
 	});

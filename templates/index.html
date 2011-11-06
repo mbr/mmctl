@@ -15,6 +15,7 @@
 <script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-alerts.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-popover.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-modal.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-tabs.js')}}"></script>
 
 <script type="text/javascript" src="{{url_for('.static', filename='js/rpc.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/murmur-data.js')}}"></script>
@@ -31,6 +32,15 @@ td button { margin: 0em 0.5em; }
 td.running { width: 16em; }
 .topbar p { color: gray; }
 .unnamed { font-style: italic; }
+.settings-tab h4 { clear: both; }
+.settings-tab div.help { width: 230px; float: right; clear: both;}
+.settings-tab input[type=text] { width: 210px; }
+.settings-tab textarea { width: 440px; height: 6em;}
+.clearfix { clear: both; }
+#server-configuration-table { position: relative; height: 440px; width: 450px; overflow: auto; }
+.local-conf .conf-key { font-weight: bold; }
+.changed-label { margin-left: 0.2em; visibility: hidden; }
+.changed .changed-label { visibility: visible; }
 </style>
 
 <script type="text/javascript">
@@ -147,9 +157,9 @@ $(document).ready(function() {
 			<small><a href="http://en.wikipedia.org/wiki/Terry_Pratchett" title="Terry Pratchett's Wikipedia page.">Terry Pratchett</a>, <a href="http://en.wikipedia.org/wiki/Jingo_(novel)" title="Jingo, in Wikipedia">Jingo</a></small>
           </blockquote>
 
-          <p>The first version of <strong>mmctl</strong> was written when I wanted to play a game with a friend and could not properly configure murmur fast enough. One hour later he had leave and I promptly started scratching the newfound itch.</p>
-		  <p>mmctl is available on <a href="https://github.com/mbr/mmctl" title="mmctl's GitHub page">GitHub</a>. Feel free to send me feedback, suggestions or anything else.</p>
-		  <p>Other than numerous jQuery plugins, mmctl uses <a href="http://twitter.github.com/bootstrap/" title="Bootstrap, from Twitter">Bootstrap</a>, which I think is the best thing <a href="http://twitter.com" title="Twitter">Twitter</a> has ever given me.
+          <p>The first version of <strong>mmctl</strong> was written when I wanted to play a game with a friend and could not properly configure murmur fast enough. One hour later he had to leave and I had a new itch that needed scratching.</p>
+		  <p>mmctl is available on <a href="https://github.com/mbr/mmctl" title="mmctl's GitHub page">GitHub</a>. Feel free to send me feedback, suggestions, anything you can think of.</p>
+		  <p>Other than numerous jQuery plugins, mmctl uses <a href="http://twitter.github.com/bootstrap/" title="Bootstrap, from Twitter">Bootstrap</a>, which I think is the best thing <a href="http://twitter.com" title="Twitter">Twitter</a> has ever given me. The server-side uses <a href="http://python.org" title="Python programming language">Python</a>, <a href="http://www.zeroc.com/icepy.html" title="ZeroC Ice">ZeroC's Ice</a> and the irresistable <a href="http://flask.pocoo.org" title="The best web framework for python out there">Flask</a>.
         </div>
 
       </div>
@@ -162,11 +172,87 @@ $(document).ready(function() {
           <div class="span16">
             <h2 id="server-detail-title">Server not loaded</h2>
             <p id="server-detail-status">has been running for ???</p>
+            <p>The link for this server is <a title="Connect to server" id="server-connect-link"></a>.
           </div>
         <div class="row">
           <div class="span8">
-            <h3>Users and Groups</h3>
-            <p>foo bar baz</p>
+            <h3>Status and Configuration</h3>
+			<ul class="tabs">
+				<li class="active"><a href="#server-tab-general">General</a></li>
+				<li><a href="#server-tab-network">Network</a></li>
+				<li><a href="#server-tab-security">Security</a></li>
+				<li><a href="#server-tab-registry">Server Registry</a></li>
+				<li><a href="#server-tab-configuration">Config</a></li>
+			</ul>
+			<div id="server-tab-content" class="tab-content">
+				<div class="active tab-pane settings-tab" id="server-tab-general">
+					<h4>Server name (public)</h4>
+					<div class="help">(Note: This name will be used to <a href="#server-tab-registry" class="tab-link">register</a> the server if made public).</div>
+					<input type="text" data-config-link='registername'/>
+					<h4>Users</h4>
+					<div class="help">The maximum number of users this server accepts.</div>
+					<input type="text" class="small" data-config-link='users'/>
+					<div class="help">Allow users to write HTML messages?</div>
+					<input type="checkbox"/> Enable HTML messages
+					<h4>Welcome message</h4>
+					The following message will be sent to every user connecting to your server. HTML can be used.
+					<textarea></textarea>
+				</div>
+				<div class="tab-pane settings-tab"  id="server-tab-network">
+					<h4>Bind address</h4>
+					The interface/hostname and port to bind to.
+					<input type="text"/>:<input type="text" class="small"/>
+					<h4>Bandwidth</h4>
+					<div class="help">The maximum amount of bandwith (in bits per second) clients are allowed to send speech with.</div>
+					<input type="text"/>
+					<h4>Bonjour/ZeroConf/DNS-SD</h4>
+					<input type="checkbox"> Enable bonjour/ZeroConf (DNS-SD).<div class="help">Allows clients to find this server automatically on this network.</div>
+				</div>
+				<div class="tab-pane settings-tab" id="server-tab-security">
+					<h4>Server password</h4>
+					<div class="help">Any client must enter this password before connecting.</div>
+					<input type="text"/>
+					<h4>Certificates</h4>
+					<input type="checkbox"> Require certificate<div class="help">Only allow clients to connect that offer a certificate.</div>
+					<h4>Auto-ban</h4>
+					<div class="help">Ban clients after this many failed login attempts.</div><input type="text"/>
+					<div class="help">Duration of an auto-ban in seconds.</div><input type="text"/>
+				</div>
+				<div class="tab-pane settings-tab" id="server-tab-registry">
+					<em>Registration</em> refers to annoucing your server to the global Mumble server list. Registration will only occur if a password has been set. If lose your password, you lose access to the server name used last time with it.
+					<h4>Registration name</h4>
+					See <em>Server name (public)</em> in the <a href="#server-tab-general" class="tab-link">General</a> tab.
+					<h4>Registration password</h4>
+					<div class="help">The password to reserver the server name</div>
+					<input type="text"/>
+					<h4>Registration URL</h4>
+					<div class="help">A URL associated with your server, i.e. a website.</div>
+					<input type="text"/>
+					<h4>Registration hostname</h4>
+					<div class="help">The hostname/ip to announce in the server list.</div>
+					<input type="text"/>
+				</div>
+				<div class="tab-pane settings-tab" id="server-tab-configuration">
+					<h4>Configuration settings</h4>
+					Settings that are <strong>bold</strong> are set on this server instance. All other settings use the default values from the Global Configuration.
+					<div id="server-configuration-table">
+					<table>
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Value</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>loading...</td>
+							<td>loading...</td>
+						</tr>
+					</tbody>
+					</table>
+					</div>
+				</div>
+			</div>
           </div>
           <div class="span8">
             <h3>Log</h3>

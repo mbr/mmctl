@@ -33,6 +33,7 @@ factories = {
 }
 
 SERVER_LOG_PAGER_PER_PAGE = 10
+MUMBLE_DEFAULT_PORT = 64738
 
 
 class ClientPager(object):
@@ -87,8 +88,8 @@ def get_server_conf(meta, server, key):
     return val
 
 
-def get_server_port(meta, server):
-    val = server.getConf('port')
+def get_server_port(meta, server, val=None):
+    val = server.getConf('port') if val == None else val
 
     if '' == val:
         val = meta.getDefaultConf().get('port', 0)
@@ -176,15 +177,25 @@ def api_start_server():
 @app.route('/api/get-server-config/<int:server_id>/')
 def api_get_server_config(server_id):
     server = meta.getServer(server_id)
+    defaultConfig = meta.getDefaultConf()
+
+    config = server.getAllConf()
+    address = config.get('registerhostname', None) or\
+              server_url.hostname
+    server_port = get_server_port(meta, server, config['port'])
+    if MUMBLE_DEFAULT_PORT != server_port:
+        address += ':%d' % server_port
 
     return jsonify(
         serverId = server.id(),
         isRunning = server.isRunning(),
-        config = server.getAllConf(),
+        config = config,
+        defaultConfig = defaultConfig,
         uptime = server.getUptime() if server.isRunning() else 0,
         fuzzyUptime = str(
             timedelta(seconds=server.getUptime()) if server.isRunning() else ''
         ),
+        connectLink = 'mumble://%s' % (address),
     )
 
 

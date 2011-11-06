@@ -20,13 +20,16 @@ murmurConfigurationOptions = {
 	imagemessagelength: "Maximum length of text messages in characters, with image data. 0 for no limit.",
 	allowhtml: "Allow clients to use HTML in messages, user comments and channel descriptions?",
 	logdays: "Murmur retains the per-server log entries in an internal database which allows it to be accessed over D-Bus/ICE. How many days should such entries be kept?",
-	registername: "To enable public server registration, the serverpassword must be blank, and registerName, registerPassword and registerUrl must all be filled out.",
+	registername: "To enable public server registration, the serverpassword must be blank, and registerName, registerPassword and registerUrl must all be filled out. This also is the name of the root channel and the general server name.",
 	registerpassword: "The password here is used to create a registry for the server name; subsequent updates will need the same password. Don't lose your password.",
 	registerurl: "The URL is your own website, and only set the registerHostname for static IP addresses.",
-	registerhostname: "The hostname used in public server registration. This also is the name of the root channel and the general server name.",
+	registerhostname: "The hostname used in public server registration.",
 	bonjour: "To enable bonjour service discovery uncomment the following line. To change the name announced by bonjour adjust the registerName variable.</p><p>See <a href=\"http://developer.apple.com/networking/bonjour/index.html\" title=\"Apple bonjour\">http://developer.apple.com/networking/bonjour/index.html</a> for more information about bonjour.",
 	sslcert: "If you have a proper SSL certificate, you can provide the filenames here.",
 	sslkey: "If you have a proper SSL certificate, you can provide the filenames here.",
 	uname: "If murmur is started as root, which user should it switch to? This option is ignored if murmur isn't started with root privileges.",
 	certrequired: "If this options is enabled, only clients which have a certificate are allowed to connect.",
+	password: "The password required for Mumble clients to connect to the server.",
+	key: "The secret key for the server's certificate, in PEM format.",
+	certificate: "The certificate for the server, in PEM format."
 }

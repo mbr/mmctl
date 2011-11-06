@@ -45,6 +45,50 @@
 	};
 })( jQuery );
 
+function ServerConfiguration(localConf, defaultConf) {
+	this.updateConf(localConf, defaultConf);
+}
+
+ServerConfiguration.prototype.updateConf = function(localConf, defaultConf) {
+	this.localConf = localConf;
+	this.defaultConf = defaultConf;
+	this.changedConf = {};
+
+	$(this).trigger('update');
+
+	var me = this;
+	$.each(this.getAllValues(), function(k, v) { me._update(k, v) });
+}
+
+ServerConfiguration.prototype.getValue = function(key) {
+	if (undefined != this.changedConf[key]) return this.changedConf[key];
+	if (undefined != this.localConf[key]) return this.localConf[key];
+	return this.defaultConf[key];
+}
+
+ServerConfiguration.prototype.isLocal = function(key) {
+	return (undefined != this.changedConf[key] ||
+	       undefined != this.localConf[key]);
+}
+
+ServerConfiguration.prototype.setValue = function(key, value) {
+	this.changedConf[key] = value;
+	$(this).trigger('changed', key, value);
+
+	this._update(key, value);
+}
+
+ServerConfiguration.prototype._update = function(key, value) {
+	/* update all linked */
+	$('*[data-config-link="' + key + '"]').val(function() {
+		return value;
+	});
+}
+
+ServerConfiguration.prototype.getAllValues = function() {
+	return $.extend({}, this.defaultConf, this.localConf, this.changedConf);
+}
+
 function init_ui() {
 	/* server list page */
 	$('#server-list').tablesorter();
@@ -101,7 +145,73 @@ function init_ui() {
 	});
 
 	$('.alert-message').alert();
+	$('.tabs').tabs();
 
+	$('.tab-link').click(function(e) {
+		e.preventDefault();
+		$('ul.tabs li [href=' + $(this).attr('href') + ']').click();
+	});
+
+	/* server detail page */
+	currentServerConfig = new ServerConfiguration();
+
+	/* on server update */
+	$(currentServerConfig).bind('update', function() {
+		/* recreate configuration table */
+		var cfgTblBody = $('#server-configuration-table tbody').empty();
+		$.each(currentServerConfig.getAllValues(), function(k, v) {
+			var row = $('<tr>');
+
+			if (currentServerConfig.isLocal(k)) row.addClass('local-conf');
+
+			/* helper functions */
+			var showPopup = function() { row.popover('show'); };
+			var hidePopup = function() {
+				cfgTblBody.children('tr').each(function() {
+					$(this).popover('hide');
+				});
+			}
+
+			var input = $('<input type="text" data-config-link="' + k + '">')
+				.val(currentServerConfig.getValue(k))
+				.change(function() {
+					$(this).parents('tr:eq(0)')
+					.addClass('changed')
+					.addClass('local-conf');
+
+					/* update conf */
+					/* no infinite loop here, as .val() doesn't trigger .change() */
+					currentServerConfig.setValue(k,	$(this).val());
+				})
+			row.append(
+				$('<td class="conf-key">').append(
+					$('<span>').text(k),
+					$('<span class="changed-label label warning">').text('Unsaved')
+				),
+				$('<td class="conf-value">').append(input)
+			).appendTo(cfgTblBody)
+					.focusin(showPopup)
+					.focusout(hidePopup)
+					.mouseenter(showPopup)
+					.mouseleave(hidePopup);
+
+			if (murmurConfigurationOptions[k])
+				row.attr('title', k)
+						 .attr('data-content',
+							   '<p>' + murmurConfigurationOptions[k] + '</p>')
+						 .popover({html: 'true',
+								   placement: 'right',
+								   trigger: 'manual'});
+
+			/* update sorting */
+			var cfgTbl = $('#server-configuration-table table');
+			if (cfgTbl[0].config)
+				cfgTbl.trigger('update');
+			else {
+				cfgTbl.tablesorter({ sortList: [[0,0]] });
+			}
+		});
+	});
 
 	/* load configuration */
 	refreshServerList();
@@ -123,13 +233,19 @@ function loadServerConfig(serverId) {
 		'get-server-config' + '/' + serverId,
 		null,
 		function(data) {
-			var serverName = data.config.registername || $('<span class="unnamed">Unnamed server</span>');
+			currentServerConfig.updateConf(data.config, data.defaultConfig);
+
+			/* update general data */
+			var serverName = currentServerConfig.getValue('registername') || $('<span class="unnamed">Unnamed server</span>');
 			$('#server-detail-title').empty().append('(#' + data.serverId + ') ').append(serverName);
 
 			if (data.isRunning)
 				$('#server-detail-status').text('has been running for ' + data.fuzzyUptime + '.');
 			else
 				$('#server-detail-status').text('is not running.');
+
+			$('#server-connect-link').attr('href', data.connectLink).text(data.connectLink);
+
 		}
 	)
 }
@@ -159,7 +275,7 @@ function loadServerLog(serverId, page) {
 }
 
 function loadServer(serverId) {
-	$.cookie('active-server', serverId);
+	$.cookie('active-server', serverId, { expires: 365 });
 	loadServerConfig(serverId);
 	loadServerLog(serverId);
 }

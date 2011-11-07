@@ -1,0 +1,71 @@
+<div id="server-tab-content" class="tab-content">
+	<div class="active tab-pane settings-tab" id="server-tab-general">
+		<h4>Server name (public)</h4>
+		<div class="help">(Note: This name will be used to <a href="#server-tab-registry" class="tab-link">register</a> the server if made public).</div>
+		<input type="text" data-config-link="registername"/>
+		<h4>Users</h4>
+		<div class="help">The maximum number of users this server accepts.</div>
+		<input type="text" class="small" data-config-link="users"/>
+		<div class="help">Allow users to write HTML messages?</div>
+		<input type="checkbox" data-config-link="allowhtml"/> Enable HTML messages
+		<h4>Welcome message</h4>
+		The following message will be sent to every user connecting to your server. HTML can be used.
+		<textarea></textarea>
+	</div>
+
+	<div class="tab-pane settings-tab"  id="server-tab-network">
+		<h4>Bind address</h4>
+		The interface/hostname and port to bind to.
+		<input type="text" data-config-link="host">:<input type="text" data-config-link="port" class="small"/>
+		<h4>Bandwidth</h4>
+		<div class="help">The maximum amount of bandwith (in bits per second) clients are allowed to send speech with.</div>
+		<input type="text" data-config-link="bandwidth"/>
+		<h4>Bonjour/ZeroConf/DNS-SD</h4>
+		<input type="checkbox" data-config-link="bonjour"> Enable bonjour/ZeroConf (DNS-SD).
+		<div class="help">Allows clients to find this server automatically on this network.</div>
+	</div>
+
+	<div class="tab-pane settings-tab" id="server-tab-security">
+		<h4>Server password</h4>
+		<div class="help">Any client must enter this password before connecting.</div>
+		<input type="text" data-config-link="password"/>
+		<h4>Certificates</h4>
+		<input type="checkbox" data-config-link="certrequired"> Require certificate<div class="help">Only allow clients to connect that offer a certificate.</div>
+	</div>
+
+	<div class="tab-pane settings-tab" id="server-tab-registry">
+		<em>Registration</em> refers to annoucing your server to the global Mumble server list. Registration will only occur if a password has been set. If lose your password, you lose access to the server name used last time with it.
+		<h4>Registration name</h4>
+		See <em>Server name (public)</em> in the <a href="#server-tab-general" class="tab-link">General</a> tab.
+		<h4>Registration password</h4>
+		<div class="help">The password to reserver the server name</div>
+		<input type="text" data-config-link="registerpassword"/>
+		<h4>Registration URL</h4>
+		<div class="help">A URL associated with your server, i.e. a website.</div>
+		<input type="text" data-config-link="registerurl"/>
+		<h4>Registration hostname</h4>
+		<div class="help">The hostname/ip to announce in the server list.</div>
+		<input type="text" data-config-link="registerhostname"/>
+	</div>
+
+	<div class="tab-pane settings-tab" id="server-tab-configuration">
+		<h4>Configuration settings</h4>
+		Settings that are <strong>bold</strong> are set on this server instance. All other settings use the default values from the Global Configuration.
+		<div id="server-configuration-table">
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Value</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>loading...</td>
+						<td>loading...</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>

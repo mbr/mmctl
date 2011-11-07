@@ -1,0 +1,41 @@
+<div class="container mainpage" id="server-page">
+	<div class="content">
+		<div class="hero-unit">
+			<h1>Welcome to mmctl</h1>
+			<p>mmctl is a web-based <a href="http://mumble.sf.net" title="Mumble homepage">Murmur</a> administration tool. Select a server below or create a new one to begin configuration.</p>
+			<p><a class="create-server-button btn primary large">Create server now</a></p>
+		</div>
+
+		<div class="row">
+			<div class="span16">
+				<h2>Server list</h2>
+				<div class="well">
+					<input class="btn" type="button" id="refresh-server-list-button" value="Refresh"/>
+					<input class="btn primary create-server-button" type="button" value="Create server"/>
+				</div>
+				<table class="zebra-striped" id='server-list'>
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Name</th>
+							<th>Address</th>
+							<th>Status</th>
+							<th>Users</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>loading...</td>
+							<td>loading...</td>
+							<td>loading...</td>
+							<td>loading...</td>
+							<td>loading...</td>
+							<td>loading...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>

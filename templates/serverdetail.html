@@ -1,0 +1,44 @@
+<div class="container mainpage" id="server-detail-page">
+	<div class="content">
+		<div class="row">
+			<div class="span16">
+				<h2 id="server-detail-title">Server not loaded</h2>
+				<p id="server-detail-status">has been running for ???</p>
+				<p>The link for this server is <a title="Connect to server" id="server-connect-link"></a>.
+			</div>
+		</div>
+		<div class="row">
+			<div class="span8">
+				<h3>Status and Configuration</h3>
+				<button class="btn" id="server-config-save-button">Save configuration</button>
+				<button class="btn" id="server-config-reload-button">Reload configuration</button>
+				<ul class="tabs">
+					<li class="active"><a href="#server-tab-general">General</a></li>
+					<li><a href="#server-tab-network">Network</a></li>
+					<li><a href="#server-tab-security">Security</a></li>
+					<li><a href="#server-tab-registry">Server Registry</a></li>
+					<li><a href="#server-tab-configuration">Config</a></li>
+				</ul>
+				{% include 'serverdetail-tabs.html' %}
+			</div>
+			<div class="span8">
+				<h3>Log</h3>
+				<div id='server-log-pagination'></div>
+				<table class="zebra-striped" id='server-log'>
+					<thead>
+						<tr>
+							<th>Time</th>
+							<th>Entry</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>loading...</td>
+							<td>loading...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div> <!-- content -->
+</div> <!-- container -->

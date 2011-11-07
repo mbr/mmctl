@@ -1,25 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>mmctl</title>
+<title>{% block title %}mmctl{% endblock %}</title>
+
 <link rel="stylesheet" type="text/css" href="http://github.com/mbr/draft-css/raw/master/simple-ssbw.css">
 <link rel="stylesheet" href="{{url_for('.static', filename='css/bootstrap.min.css')}}">
-
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery-1.7.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery-ui-1.8.16.custom.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.tablesorter.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.scrollTo-1.4.2-min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.cookie.js')}}"></script>
-
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-twipsy.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-alerts.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-popover.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-modal.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-tabs.js')}}"></script>
-
-<script type="text/javascript" src="{{url_for('.static', filename='js/rpc.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/murmur-data.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/ui.js')}}"></script>
 
 <style type="text/css">
 body { padding-top: 60px; }
@@ -43,6 +28,21 @@ td.running { width: 16em; }
 .changed .changed-label { visibility: visible; }
 </style>
 
+<script type="text/javascript" src="{{url_for('.static', filename='js/jquery-1.7.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/jquery-ui-1.8.16.custom.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.tablesorter.min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.scrollTo-1.4.2-min.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.cookie.js')}}"></script>
+
+<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-twipsy.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-alerts.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-popover.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-modal.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-tabs.js')}}"></script>
+
+<script type="text/javascript" src="{{url_for('.static', filename='js/rpc.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/murmur-data.js')}}"></script>
+<script type="text/javascript" src="{{url_for('.static', filename='js/ui.js')}}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -64,235 +64,16 @@ $(document).ready(function() {
 </script>
 </head>
 <body>
-   <div class="topbar">
-      <div class="topbar-inner">
-        <div class="container-fluid">
-          <a class="brand" href="#">mmctl</a>
-          <ul class="nav">
-            <li><a href="#server-page">Servers</a></li>
-            <li><a href="#configuration-page">Global Configuration</a></li>
-            <li><a href="#about-page">About</a></li>
-          </ul>
-          <p class="pull-right">connected to Murmur <strong>{{version}}</strong></p>
-        </div>
-      </div>
-    </div>
-    <div id="global-alerts">
-    </div>
-
-<!-- server list -->
-    <div class="container mainpage" id="server-page">
-      <div class="content">
-        <div class="hero-unit">
-          <h1>Welcome to mmctl</h1>
-          <p>mmctl is a web-based <a href="http://mumble.sf.net" title="Mumble homepage">Murmur</a> administration tool. Select a server below or create a new one to begin configuration.</p>
-          <p><a class="create-server-button btn primary large">Create server now</a></p>
-        </div>
-
-        <div class="row">
-          <div class="span16">
-            <h2>Server list</h2>
-            <div class="well">
-				<input class="btn" type="button" id="refresh-server-list-button" value="Refresh"/>
-				<input class="btn primary create-server-button" type="button" value="Create server"/>
-			</div>
-            <table class="zebra-striped" id='server-list'>
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Name</th>
-						<th>Address</th>
-						<th>Status</th>
-						<th>Users</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr><td>loading...</td></tr>
-				</tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-<!-- global configuration -->
-    <div class="container mainpage" id="configuration-page">
-      <div class="content">
-        <div class="row">
-          <div class="span16">
-            <h2>Global configuration</h2>
-            <p>You can view the global configuration here. Values can either be overriden in individual servers or configured through <code>murmur.ini</code>.</p>
-
-            <table class="zebra-striped" id='global-configuration'>
-				<thead>
-					<tr>
-						<th>Option</th>
-						<th>Value</th>
-						<th>Description</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>loading...</td>
-						<td>loading...</td>
-						<td>loading...</td>
-					</tr>
-				</tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-<!-- about page -->
-    <div class="container mainpage" id="about-page">
-      <div class="content">
-        <div class="hero-unit">
-          <h1>About mmctl</h1>
-          <blockquote>
-			<p>"Give a man a fire and he's warm for a day, but set fire to him and he's warm for the rest of his life."</p>
-			<small><a href="http://en.wikipedia.org/wiki/Terry_Pratchett" title="Terry Pratchett's Wikipedia page.">Terry Pratchett</a>, <a href="http://en.wikipedia.org/wiki/Jingo_(novel)" title="Jingo, in Wikipedia">Jingo</a></small>
-          </blockquote>
-
-          <p>The first version of <strong>mmctl</strong> was written when I wanted to play a game with a friend and could not properly configure murmur fast enough. One hour later he had to leave and I had a new itch that needed scratching.</p>
-		  <p>mmctl is available on <a href="https://github.com/mbr/mmctl" title="mmctl's GitHub page">GitHub</a>. Feel free to send me feedback, suggestions, anything you can think of.</p>
-		  <p>Other than numerous jQuery plugins, mmctl uses <a href="http://twitter.github.com/bootstrap/" title="Bootstrap, from Twitter">Bootstrap</a>, which I think is the best thing <a href="http://twitter.com" title="Twitter">Twitter</a> has ever given me. The server-side uses <a href="http://python.org" title="Python programming language">Python</a>, <a href="http://www.zeroc.com/icepy.html" title="ZeroC Ice">ZeroC's Ice</a> and the irresistable <a href="http://flask.pocoo.org" title="The best web framework for python out there">Flask</a>.
-        </div>
-
-      </div>
-    </div>
-
-<!-- edit server page -->
-    <div class="container mainpage" id="server-detail-page">
-      <div class="content">
-        <div class="row">
-          <div class="span16">
-            <h2 id="server-detail-title">Server not loaded</h2>
-            <p id="server-detail-status">has been running for ???</p>
-            <p>The link for this server is <a title="Connect to server" id="server-connect-link"></a>.
-          </div>
-        <div class="row">
-          <div class="span8">
-            <h3>Status and Configuration</h3>
-            <button class="btn" id="server-config-save-button">Save configuration</button>
-            <button class="btn" id="server-config-reload-button">Reload configuration</button>
-			<ul class="tabs">
-				<li class="active"><a href="#server-tab-general">General</a></li>
-				<li><a href="#server-tab-network">Network</a></li>
-				<li><a href="#server-tab-security">Security</a></li>
-				<li><a href="#server-tab-registry">Server Registry</a></li>
-				<li><a href="#server-tab-configuration">Config</a></li>
-			</ul>
-			<div id="server-tab-content" class="tab-content">
-				<div class="active tab-pane settings-tab" id="server-tab-general">
-					<h4>Server name (public)</h4>
-					<div class="help">(Note: This name will be used to <a href="#server-tab-registry" class="tab-link">register</a> the server if made public).</div>
-					<input type="text" data-config-link="registername"/>
-					<h4>Users</h4>
-					<div class="help">The maximum number of users this server accepts.</div>
-					<input type="text" class="small" data-config-link="users"/>
-					<div class="help">Allow users to write HTML messages?</div>
-					<input type="checkbox" data-config-link="allowhtml"/> Enable HTML messages
-					<h4>Welcome message</h4>
-					The following message will be sent to every user connecting to your server. HTML can be used.
-					<textarea></textarea>
-				</div>
-				<div class="tab-pane settings-tab"  id="server-tab-network">
-					<h4>Bind address</h4>
-					The interface/hostname and port to bind to.
-					<input type="text"/ data-config-link="host">:<input type="text" data-config-link="port" class="small"/>
-					<h4>Bandwidth</h4>
-					<div class="help">The maximum amount of bandwith (in bits per second) clients are allowed to send speech with.</div>
-					<input type="text" data-config-link="bandwidth"/>
-					<h4>Bonjour/ZeroConf/DNS-SD</h4>
-					<input type="checkbox" data-config-link="bonjour"> Enable bonjour/ZeroConf (DNS-SD).<div class="help">Allows clients to find this server automatically on this network.</div>
-				</div>
-				<div class="tab-pane settings-tab" id="server-tab-security">
-					<h4>Server password</h4>
-					<div class="help">Any client must enter this password before connecting.</div>
-					<input type="text" data-config-link="password"/>
-					<h4>Certificates</h4>
-					<input type="checkbox" data-config-link="certrequired"> Require certificate<div class="help">Only allow clients to connect that offer a certificate.</div>
-				</div>
-				<div class="tab-pane settings-tab" id="server-tab-registry">
-					<em>Registration</em> refers to annoucing your server to the global Mumble server list. Registration will only occur if a password has been set. If lose your password, you lose access to the server name used last time with it.
-					<h4>Registration name</h4>
-					See <em>Server name (public)</em> in the <a href="#server-tab-general" class="tab-link">General</a> tab.
-					<h4>Registration password</h4>
-					<div class="help">The password to reserver the server name</div>
-					<input type="text" data-config-link="registerpassword"/>
-					<h4>Registration URL</h4>
-					<div class="help">A URL associated with your server, i.e. a website.</div>
-					<input type="text" data-config-link="registerurl"/>
-					<h4>Registration hostname</h4>
-					<div class="help">The hostname/ip to announce in the server list.</div>
-					<input type="text" data-config-link="registerhostname"/>
-				</div>
-				<div class="tab-pane settings-tab" id="server-tab-configuration">
-					<h4>Configuration settings</h4>
-					Settings that are <strong>bold</strong> are set on this server instance. All other settings use the default values from the Global Configuration.
-					<div id="server-configuration-table">
-					<table>
-					<thead>
-						<tr>
-							<th>Name</th>
-							<th>Value</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>loading...</td>
-							<td>loading...</td>
-						</tr>
-					</tbody>
-					</table>
-					</div>
-				</div>
-			</div>
-          </div>
-          <div class="span8">
-            <h3>Log</h3>
-            <div id='server-log-pagination'>
-			</div>
-            <table class="zebra-striped" id='server-log'>
-				<thead>
-					<tr>
-						<th>Time</th>
-						<th>Entry</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr><td>loading...</td></tr>
-				</tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </div>
+{% include 'topbar.html' %}
+{% include 'serverlist.html' %}
+{% include 'globalconfig.html' %}
+{% include 'about.html' %}
+{% include 'serverdetail.html' %}
+{% include 'dialogs.html' %}
 
 <!-- footer gets attached to current page dynamically -->
 <footer>
   <p>&copy; <a href="https://github.com/mbr" title="Marc's github page">Marc Brinkmann 2011</a></p>
 </footer>
-
-<!-- dialogs -->
-<div id="confirm-dialog" class="modal hide fade">
-<div class="modal-header">
-  <a href="#" class="close">&times;</a>
-  <h3>missing title</h3>
-</div>
-<div class="modal-body">
-  <p id="delete-confirm-dialog-message">missing text</p>
-</div>
-<div class="modal-footer">
-  <a id="confirm-dialog-confirm" href="#" class="btn primary danger">missing action</a>
-  <a id="confirm-dialog-cancel" href="#" class="btn secondary">Cancel</a>
-</div>
-</div>
-
 </body>
 </html>

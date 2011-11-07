@@ -5,28 +5,7 @@
 
 <link rel="stylesheet" type="text/css" href="http://github.com/mbr/draft-css/raw/master/simple-ssbw.css">
 <link rel="stylesheet" href="{{url_for('.static', filename='css/bootstrap.min.css')}}">
-
-<style type="text/css">
-body { padding-top: 60px; }
-.mainpage { display: none; }
-.clickable { cursor: pointer; }
-td.small { width: 1em; }
-td.medium { width: 14em; }
-td.large { width: 30em; }
-td button { margin: 0em 0.5em; }
-td.running { width: 16em; }
-.topbar p { color: gray; }
-.unnamed { font-style: italic; }
-.settings-tab h4 { clear: both; }
-.settings-tab div.help { width: 230px; float: right; clear: both;}
-.settings-tab input[type=text] { width: 210px; }
-.settings-tab textarea { width: 440px; height: 6em;}
-.clearfix { clear: both; }
-#server-configuration-table { position: relative; height: 440px; width: 450px; overflow: auto; }
-.local-conf .conf-key { font-weight: bold; }
-.changed-label { margin-left: 0.2em; visibility: hidden; }
-.changed .changed-label { visibility: visible; }
-</style>
+<link rel="stylesheet" href="{{url_for('.static', filename='css/mmctl.css')}}">
 
 <script type="text/javascript" src="{{url_for('.static', filename='js/jquery-1.7.min.js')}}"></script>
 <script type="text/javascript" src="{{url_for('.static', filename='js/jquery-ui-1.8.16.custom.min.js')}}"></script>

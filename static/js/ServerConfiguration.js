@@ -40,6 +40,7 @@ ServerConfiguration.prototype._update = function(key, value) {
 		'checked',
 		('false' != value && '0' != value && '' != value)
 	);
+	$('span[data-config-link="' + key + '"]').text(value);
 }
 
 ServerConfiguration.prototype.getAllValues = function() {

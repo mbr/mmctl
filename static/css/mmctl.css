@@ -17,3 +17,4 @@ td.running { width: 16em; }
 .local-conf .conf-key { font-weight: bold; }
 .changed-label { margin-left: 0.2em; visibility: hidden; }
 .changed .changed-label { visibility: visible; }
+#server-detail-toplink { display: none ; }

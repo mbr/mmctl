@@ -34,4 +34,4 @@ murmurConfigurationOptions = {
 	password: "The password required for Mumble clients to connect to the server.",
 	key: "The secret key for the server's certificate, in PEM format.",
 	certificate: "The certificate for the server, in PEM format."
-}
+};

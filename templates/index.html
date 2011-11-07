@@ -2,26 +2,30 @@
 <html>
 <head>
 <title>{% block title %}mmctl{% endblock %}</title>
+{% assets filter="cssmin", output='gen/all.css',
+	'css/bootstrap.min.css',
+	'css/mmctl.css' %}
+	<link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
 
-<link rel="stylesheet" type="text/css" href="http://github.com/mbr/draft-css/raw/master/simple-ssbw.css">
-<link rel="stylesheet" href="{{url_for('.static', filename='css/bootstrap.min.css')}}">
-<link rel="stylesheet" href="{{url_for('.static', filename='css/mmctl.css')}}">
+{% assets filter="jsmin", output='gen/all.min.js',
+	'js/jquery-1.7.min.js',
+	'js/jquery-ui-1.8.16.custom.min.js',
+	'js/jquery.tablesorter.min.js',
+	'js/jquery.scrollTo-1.4.2-min.js',
+	'js/jquery.cookie.js',
+	'js/bootstrap-twipsy.js',
+	'js/bootstrap-alerts.js',
+	'js/bootstrap-popover.js',
+	'js/bootstrap-modal.js',
+	'js/bootstrap-tabs.js',
+	'js/rpc.js',
+	'js/murmur-data.js',
+	'js/ui.js'
+%}
+	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
 
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery-1.7.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery-ui-1.8.16.custom.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.tablesorter.min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.scrollTo-1.4.2-min.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/jquery.cookie.js')}}"></script>
-
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-twipsy.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-alerts.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-popover.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-modal.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/bootstrap-tabs.js')}}"></script>
-
-<script type="text/javascript" src="{{url_for('.static', filename='js/rpc.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/murmur-data.js')}}"></script>
-<script type="text/javascript" src="{{url_for('.static', filename='js/ui.js')}}"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -41,6 +45,7 @@ $(document).ready(function() {
 	init_ui();
 });
 </script>
+
 </head>
 <body>
 {% include 'topbar.html' %}

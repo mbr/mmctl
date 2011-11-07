@@ -9,6 +9,7 @@ import Ice
 #from jsonhack import jsonify
 from flask import jsonify, url_for
 from flask import Flask, render_template, request
+from flaskext.assets import Environment as AssetEnvironment, Bundle
 
 import commandline
 
@@ -100,6 +101,7 @@ def get_server_port(meta, server, val=None):
 
 # create flask app
 app = Flask(__name__)
+AssetEnvironment(app)
 
 
 @app.route('/')
@@ -234,6 +236,21 @@ def api_save_server_config(server_id):
 
     return api_get_server_config(server_id)
 
+
+@app.route('/api/get-online-users/<int:server_id>/')
+def api_get_users(server_id):
+    server = meta.getServer(server_id)
+
+    users = dict((num, u.__dict__) for num, u in server.getUsers().items())
+
+    return jsonify(users=users)
+
+@app.route('/api/get-registered-users/<int:server_id>/')
+@app.route('/api/get-registered-users/<int:server_id>/<filter>/')
+def api_get_registrations(server_id, filter=''):
+    server = meta.getServer(server_id)
+
+    return jsonify(names=server.getRegisteredUsers(''))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

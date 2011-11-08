@@ -9,7 +9,8 @@ from flask import Blueprint, jsonify, url_for, render_template, request,\
 from utils import *
 
 mmctlui = Blueprint('mmctlui', __name__,
-                    template_folder='templates')
+                    template_folder='templates',
+                    static_folder='static')
 
 @mmctlui.route('/')
 def index():

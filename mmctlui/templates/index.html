@@ -1,32 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>{% block title %}mmctl{% endblock %}</title>
-{% assets filter="cssmin", output='gen/all.css',
-	'css/bootstrap.min.css',
+{% extends "base.html" %}
+
+{% block title %}mmctl{% endblock %}
+
+{% block head %}
+{{super()}}
+{% assets filter="cssmin", output='gen/mmctlui-all.css',
 	'css/mmctl.css' %}
 	<link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}
 
-{% assets filter="jsmin", output='gen/all.min.js',
-	'js/jquery/jquery-1.7.min.js',
-	'js/jquery/jquery.tablesorter.min.js',
-	'js/jquery/jquery.scrollTo-1.4.2-min.js',
-	'js/jquery/jquery.cookie.js',
-	'js/bootstrap/bootstrap-twipsy.js',
-	'js/bootstrap/bootstrap-alerts.js',
-	'js/bootstrap/bootstrap-popover.js',
-	'js/bootstrap/bootstrap-modal.js',
-	'js/bootstrap/bootstrap-tabs.js',
-	'js/rpc.js',
-	'js/murmur-data.js',
-	'js/BootstrapPager.js',
-	'js/ServerConfiguration.js',
-	'js/ui.js'
+{% assets filter="jsmin", output='gen/mmctlui-all.min.js',
+	'mmctlui/js/jquery/jquery.tablesorter.min.js',
+	'mmctlui/js/jquery/jquery.scrollTo-1.4.2-min.js',
+	'mmctlui/js/rpc.js',
+	'mmctlui/js/murmur-data.js',
+	'mmctlui/js/BootstrapPager.js',
+	'mmctlui/js/ServerConfiguration.js',
+	'mmctlui/js/ui.js'
 %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
-
 <script type="text/javascript">
 $(document).ready(function() {
 	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -46,9 +39,9 @@ $(document).ready(function() {
 	init_ui();
 });
 </script>
+{% endblock %}
 
-</head>
-<body>
+{% block body %}
 {% include 'topbar.html' %}
 {% include 'serverlist.html' %}
 {% include 'globalconfig.html' %}
@@ -61,5 +54,4 @@ $(document).ready(function() {
 <footer>
   <p>&copy; <a href="https://github.com/mbr" title="Marc's github page">Marc Brinkmann 2011</a></p>
 </footer>
-</body>
-</html>
+{% endblock %}

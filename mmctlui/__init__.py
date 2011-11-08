@@ -92,7 +92,7 @@ def get_server_config(server_id):
 
     config = server.getAllConf()
     address = config.get('registerhostname', None) or\
-              current_app.server_url.hostname
+              current_app.config['SERVER_HOSTNAME']
     server_port = get_server_port(current_app.meta, server, config['port'])
     if current_app.config['MUMBLE_DEFAULT_PORT'] != server_port:
         address += ':%d' % server_port

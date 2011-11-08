@@ -11,6 +11,7 @@ import defaults
 
 def create_app(configfile='mmctl.conf'):
     app = Flask(__name__)
+    app.version = '0.2.0'
     app.config.from_object(defaults)
 
     try:
@@ -18,7 +19,17 @@ def create_app(configfile='mmctl.conf'):
     except IOError:
         # load configuration blueprint
         from cfgutil import cfgutil
+        import random
         app.register_blueprint(cfgutil)
+
+        # generate initial salt
+
+        # 64 bit recommended, let's do a bit more
+        app.initial_salt = '%x' % random.SystemRandom().getrandbits(96)
+
+        app.initial_iterations = 2000 #  seems a good compromise
+        #app.initial_iterations = 20 #  makes debugging more fun
+        app.initial_keylength = 64
     else:
         # load api/ui blueprint
         from mmctlui import mmctlui
@@ -30,11 +41,7 @@ def create_app(configfile='mmctl.conf'):
 
         ic = Ice.initialize()
 
-        app.server_url = urlparse(app.config['SERVER_URL'])
-        metaproxy = ic.stringToProxy(
-            'Meta:tcp -h %s -p %d' % (app.server_url.hostname,
-                                      app.server_url.port)
-        )
+        metaproxy = ic.stringToProxy(app.config['ICE_STRING'])
         app.meta = Murmur.MetaPrx.checkedCast(metaproxy)
 
     # check if there is a configuration file, if not, run config blueprint

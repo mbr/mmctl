@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}mmctl: Initial configuration{% endblock %}
+
+{% block head %}
+{{super()}}
+<style type="text/css">
+.javascripterror {
+	margin-top: 100px;
+	text-align: center;
+	color: red;
+}
+.prehidden {
+	display: none;
+}
+</style>
+<script type="text/javascript">
+$(document).ready(function() {
+	initialSalt = {{initial_salt|tojson|safe}};
+	initialIterations = {{initial_iterations|tojson|safe}};
+	initialKeylength = {{initial_keylength|tojson|safe}};
+
+	/* remove "splash" screen */
+	$('.javascripterror').hide();
+	$('.prehidden').show();
+
+	/* clear error state on password if user changes them */
+	var resetPWs = $('#password_container, #password2_container').change(function() {
+		$('#password_container').removeClass('error');
+		$('#password2_container').removeClass('error');
+		$('#password_container span.help-inline').text();
+	});
+
+	$('#mainform').submit(function(e) {
+		submitButton = $('#mainform input[type="submit"]');
+		if ($('#pbdk').val() == '') {
+			var pw = $('#password_container input').val();
+			var pw_confirm = $('#password2_container input').val();
+
+			if (pw.length < 8) {
+				$('#password_container').addClass('error');
+				$('#password_container span.help-inline').text('Must be at least 8 characters long');
+
+				return false;
+			}
+
+			if (pw != pw_confirm) {
+				$('#password_container').addClass('error');
+				$('#password2_container').addClass('error');
+				$('#password_container span.help-inline').text('The passwords do not match.');
+				return false;
+			}
+
+			/* prepare for submit */
+			submitButton	
+			.addClass('disabled')
+			.attr('disabled', true)
+			.val('please wait...');
+
+			Crypto.PBKDF2Async(
+				pw,
+				initialSalt,
+				initialKeylength,
+				function(result) {
+					$('#pbdk').val(result);
+					submitButton.val('saving...');
+					$('#mainform').submit();
+				},
+				{
+					iterations: initialIterations,
+					onProgressChange: function(pcomplete) {
+						submitButton.val('generating key: ' + pcomplete + '%');
+					}
+				}
+			);
+
+			return false;
+		}
+		
+		/* pbdk exists and is valid, submit */
+	});
+});
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="javascripterror">
+Loading... If this message does not disappear soon, check if you have javascript enabled.
+</div>
+<div class="container prehidden">
+	<div class="content">
+		<div class="page-header">
+		<h1>mmctl Setup <small>For a few clicks more...</small></h1>
+		</div>
+		<div class="row">
+		<div class="span10">
+		<form action="." method="POST" id="mainform">
+			<fieldset>
+				<legend>Server connection</legend>
+				<div class="clearfix">
+					<label for="icestring">IceProxy for Meta</label>
+					<div class="input">
+						<input class="xlarge" id="icestring" name="icestring" type="text" value="{{form['icestring']}}"/>
+					</div>
+				</div>
+				<div class="clearfix">
+					<div class="input">
+						Supply a valid string describing an Ice proxy for the Murmur Meta here. The simplest form is <code>Meta:tcp -h HOSTNAME -p PORT</code>, where <code>HOSTNAME</code> is the hostname/ip of the mumble server and the <code>PORT</code> the port the server is listening on.
+					</div>
+				</div>
+				<div class="clearfix">
+					<label for="hostname">External hostname</label>
+					<div class="input">
+						<input class="xlarge" id="hostname" name="hostname" type="text" value="{{form['hostname']}}"/>
+					</div>
+				</div>
+				<div class="clearfix">
+					<div class="input">
+						The hostname or IP at which the mumble server can be reached. This is used to generate valid <code>mumble://</code> links.
+					</div>
+				</div>
+			</fieldset>
+
+			<fieldset>
+				<legend>Security</legend>
+				<div class="clearfix" id="password_container">
+					<label for="hostname">Password</label>
+					<div class="input">
+						<input type="password" class="large"/>
+						<span class="help-inline"></span>
+					</div>
+				</div>
+				<div class="clearfix" id="password2_container">
+					<label for="hostname">Repeat Password</label>
+					<div class="input">
+						<input type="password" class="large" id="password2_input"/>
+					</div>
+				</div>
+				<div class="clearfix">
+					<div class="input">
+						This password will be required to access <strong>mmctl</strong>.	
+					</div>
+				</div>
+				<div class="actions">
+					<input type="hidden" id="pbdk" name="pbdk" value="">
+					<input type="submit" class="btn primary" value="Save configuration"/>
+				</div>
+			</fieldset>
+		</form>
+		</div>
+		<div class="span4">
+		<h3>Status</h3>
+		mmctl Version {{version}}
+		</div>
+		</div>
+	</div>
+	{% include "footer.html" %}
+</div> <!-- /container -->
+{% endblock %}

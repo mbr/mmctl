@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+{% block head %}
+<title>{% block title %}mmctl{% endblock %}</title>
+{% assets filter="cssmin", output='gen/bootstrap-base.css',
+	'css/bootstrap.min.css' %}
+	<link rel="stylesheet" href="{{ ASSET_URL }}">
+{% endassets %}
+
+{% assets filter="jsmin", output='gen/base.min.js',
+	'js/jquery/jquery-1.7.min.js',
+	'js/jquery/jquery.cookie.js',
+	'js/bootstrap/bootstrap-twipsy.js',
+	'js/bootstrap/bootstrap-alerts.js',
+	'js/bootstrap/bootstrap-popover.js',
+	'js/bootstrap/bootstrap-modal.js',
+	'js/bootstrap/bootstrap-tabs.js',
+	'js/2.3.0-crypto-sha1-hmac-pbkdf2async.js'
+%}
+	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
+{% endassets %}
+
+{% endblock %}
+</head>
+<body>
+{% block body %}
+{% endblock %}
+</body>
+</html>

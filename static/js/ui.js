@@ -235,7 +235,8 @@ function loadServer(serverId) {
 	currentServerId = serverId;
 	loadServerConfig(serverId);
 	loadServerLog(serverId);
-	$('#server-detail-toplink').show();
+	$('#server-detail-toplink').css('display', 'block');
+	$('#acls-toplink').css('display', 'block');
 }
 
 function confirmDialog(title, message, action, actionClass, on_ok) {

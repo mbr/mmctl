@@ -3,7 +3,8 @@
 <head>
 {% block head %}
 <title>{% block title %}mmctl{% endblock %}</title>
-{% assets filter="cssmin", output='gen/bootstrap-base.css',
+{# note: cssmin breaks the bootstrap css file #}
+{% assets output='gen/bootstrap-base.css',
 	'css/bootstrap.min.css' %}
 	<link rel="stylesheet" href="{{ ASSET_URL }}">
 {% endassets %}

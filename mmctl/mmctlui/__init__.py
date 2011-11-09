@@ -6,7 +6,7 @@ from datetime import timedelta, datetime
 from flask import Blueprint, jsonify, url_for, render_template, request,\
                   current_app
 
-from utils import *
+from ..utils import *
 
 mmctlui = Blueprint('mmctlui', __name__,
                     template_folder='templates',

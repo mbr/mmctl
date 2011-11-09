@@ -3,11 +3,11 @@
 
 from urlparse import urlparse
 
-import Ice
 from flask import Flask
 from flaskext.assets import Environment as AssetEnvironment, Bundle
 
 import defaults
+from utils import load_meta
 
 def create_app(configfile='mmctl.conf'):
     app = Flask(__name__)
@@ -36,13 +36,7 @@ def create_app(configfile='mmctl.conf'):
         app.register_blueprint(mmctlui)
 
         # load slice file, this could be done dynamicall later on
-        Ice.loadSlice(app.config['SLICE_FILE'])
-        import Murmur
-
-        ic = Ice.initialize()
-
-        metaproxy = ic.stringToProxy(app.config['ICE_STRING'])
-        app.meta = Murmur.MetaPrx.checkedCast(metaproxy)
+        app.meta = load_meta(app.config['ICE_STRING'])
 
     # check if there is a configuration file, if not, run config blueprint
     AssetEnvironment(app)

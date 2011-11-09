@@ -2,7 +2,7 @@
 # coding=utf8
 
 from flask import Blueprint, render_template, current_app
-import defaults
+from .. import defaults
 
 cfgutil = Blueprint('cfgutil', __name__,
                     template_folder='templates')

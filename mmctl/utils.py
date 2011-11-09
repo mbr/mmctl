@@ -4,8 +4,6 @@
 from math import ceil
 import os
 
-from flask import current_app
-
 import Ice
 
 class ClientPager(object):
@@ -86,11 +84,11 @@ def get_server_port(meta, server, val=None):
     return int(val)
 
 
-def load_meta(ice_string):
-    Ice.loadSlice(os.path.join(current_app.root_path, 'Murmur.ice'))
+def load_meta(app, ice_string):
+    Ice.loadSlice(os.path.join(app.root_path, 'Murmur.ice'))
     import Murmur
 
     ic = Ice.initialize()
 
-    metaproxy = ic.stringToProxy(ice_string)
+    metaproxy = ic.stringToProxy(ice_string.encode('ascii'))
     return Murmur.MetaPrx.checkedCast(metaproxy)

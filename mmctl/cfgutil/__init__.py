@@ -56,7 +56,7 @@ def index():
 def check_proxy():
     error = False
     try:
-        meta = load_meta(request.json['proxy'])
+        meta = load_meta(current_app, request.json['proxy'])
     except Ice.DNSException, e:
         error = 'Could not resolve host "%s"' % e.host
     except Ice.ConnectionRefusedException, e:

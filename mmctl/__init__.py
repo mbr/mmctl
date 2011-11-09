@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf8
 
+import os
 from urlparse import urlparse
 
 from flask import Flask
@@ -15,7 +16,8 @@ def create_app(configfile='mmctl.conf'):
     app.config.from_object(defaults)
 
     try:
-        app.config.from_pyfile(configfile)
+        conffile = os.path.join(app.instance_path, 'mmctl.conf')
+        app.config.from_pyfile(conffile)
     except IOError:
         # load configuration blueprint
         from cfgutil import cfgutil
@@ -39,7 +41,7 @@ def create_app(configfile='mmctl.conf'):
         app.register_blueprint(mmctlui)
 
         # load slice file, this could be done dynamicall later on
-        app.meta = load_meta(app.config['ICE_STRING'])
+        app.meta = load_meta(app, app.config['ICE_STRING'])
 
     # check if there is a configuration file, if not, run config blueprint
     AssetEnvironment(app)

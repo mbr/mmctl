@@ -27,8 +27,11 @@ def create_app(configfile='mmctl.conf'):
         # 64 bit recommended, let's do a bit more
         app.initial_salt = '%x' % random.SystemRandom().getrandbits(96)
 
-        app.initial_iterations = 2000 #  seems a good compromise
-        #app.initial_iterations = 20 #  makes debugging more fun
+        # the high number of iterations prevents an attacker from trying too
+        # many dictionary attacks once he has the hash.
+        # unfortunately, this has a bit of an impact on the user experience
+        # for now, security trumps convenience
+        app.initial_iterations = 2000
         app.initial_keylength = 64
     else:
         # load api/ui blueprint

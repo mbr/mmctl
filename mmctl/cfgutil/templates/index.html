@@ -16,6 +16,13 @@
 </style>
 <script type="text/javascript">
 $(document).ready(function() {
+	confAPI = new mmctlAPI(
+		$SCRIPT_ROOT,
+		function(jqXHR, textStatus, errorThrown) {
+			$('#last-error-status').text(textStatus);
+			$('#last-error-thrown').text(errorThrown);
+		}
+	);
 	initialSalt = {{initial_salt|tojson|safe}};
 	initialIterations = {{initial_iterations|tojson|safe}};
 	initialKeylength = {{initial_keylength|tojson|safe}};
@@ -91,6 +98,9 @@ Loading... If this message does not disappear soon, check if you have javascript
 	<div class="content">
 		<div class="page-header">
 		<h1>mmctl Setup <small>For a few clicks more...</small></h1>
+		</div>
+		<div class="row error">
+			<span id="last-error-status"></span> <span id="last-error-thrown"></span>
 		</div>
 		<div class="row">
 		<div class="span10">

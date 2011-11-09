@@ -16,10 +16,15 @@
 	'js/bootstrap/bootstrap-popover.js',
 	'js/bootstrap/bootstrap-modal.js',
 	'js/bootstrap/bootstrap-tabs.js',
-	'js/2.3.0-crypto-sha1-hmac-pbkdf2async.js'
+	'js/2.3.0-crypto-sha1-hmac-pbkdf2async.js',
+	'js/rpc.js'
 %}
 	<script type="text/javascript" src="{{ ASSET_URL }}"></script>
 {% endassets %}
+
+<script type="text/javascript">
+	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
 
 {% endblock %}
 </head>

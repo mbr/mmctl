@@ -12,7 +12,6 @@
 {% assets filter="jsmin", output='gen/mmctlui-all.min.js',
 	'mmctlui/js/jquery/jquery.tablesorter.min.js',
 	'mmctlui/js/jquery/jquery.scrollTo-1.4.2-min.js',
-	'mmctlui/js/rpc.js',
 	'mmctlui/js/murmur-data.js',
 	'mmctlui/js/BootstrapPager.js',
 	'mmctlui/js/ServerConfiguration.js',
@@ -22,7 +21,6 @@
 {% endassets %}
 <script type="text/javascript">
 $(document).ready(function() {
-	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 	mmctlServer = new mmctlAPI(
 		$SCRIPT_ROOT + '/api',
 		function(jqXHR, textStatus, errorThrown) {

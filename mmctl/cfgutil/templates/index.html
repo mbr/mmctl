@@ -86,6 +86,32 @@ $(document).ready(function() {
 		
 		/* pbdk exists and is valid, submit */
 	});
+
+	/* checking for proxy string */
+	$('#icestring').blur(function() {
+		confAPI.callAPI(
+			'check-proxy',
+			{proxy: $(this).val()},
+			function(data) {
+				if (data.error) {
+					$('#icestring_container')
+						.removeClass('success')
+						.addClass('error');
+
+					$('#icestring_container span.help-inline')
+						.text(data.error);
+				} else {
+					$('#icestring_container')
+						.removeClass('error')
+						.addClass('success');
+
+					$('#icestring_container span.help-inline')
+						.text('Connection successful');
+				}
+			},
+			{type: 'post'}
+		);
+	}).focus();
 });
 </script>
 {% endblock %}
@@ -107,10 +133,10 @@ Loading... If this message does not disappear soon, check if you have javascript
 		<form action="." method="POST" id="mainform">
 			<fieldset>
 				<legend>Server connection</legend>
-				<div class="clearfix">
+				<div class="clearfix" id="icestring_container">
 					<label for="icestring">IceProxy for Meta</label>
 					<div class="input">
-						<input class="xlarge" id="icestring" name="icestring" type="text" value="{{form['icestring']}}"/>
+						<input class="xlarge" id="icestring" name="icestring" type="text" value="{{form['icestring']}}"/><span class="help-inline"></span>
 					</div>
 				</div>
 				<div class="clearfix">

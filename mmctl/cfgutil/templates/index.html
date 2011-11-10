@@ -23,9 +23,11 @@ $(document).ready(function() {
 			$('#last-error-thrown').text(errorThrown);
 		}
 	);
-	initialSalt = {{initial_salt|tojson|safe}};
-	initialIterations = {{initial_iterations|tojson|safe}};
-	initialKeylength = {{initial_keylength|tojson|safe}};
+
+	initialSalt = {{config['PBKDF2_SALT']|tojson|safe}};
+	initialKeylength = {{config['PBKDF2_KEYLENGTH']|tojson|safe}};
+	initialIterations = {{config['PBKDF2_ITERATIONS']|tojson|safe}};
+	minPasswordLength = {{config['MMCTL_MIN_PASSWORD_LENGTH']|tojson|safe}};
 
 	/* remove "splash" screen */
 	$('.javascripterror').hide();
@@ -44,9 +46,9 @@ $(document).ready(function() {
 			var pw = $('#password_container input').val();
 			var pw_confirm = $('#password2_container input').val();
 
-			if (pw.length < 8) {
+			if (pw.length < minPasswordLength) {
 				$('#password_container').addClass('error');
-				$('#password_container span.help-inline').text('Must be at least 8 characters long');
+				$('#password_container span.help-inline').text('Must be at least ' + minPasswordLength + ' characters long');
 
 				return false;
 			}

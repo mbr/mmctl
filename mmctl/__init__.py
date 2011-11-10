@@ -25,16 +25,9 @@ def create_app(configfile='mmctl.conf'):
         app.register_blueprint(cfgutil)
 
         # generate initial salt
-
-        # 64 bit recommended, let's do a bit more
-        app.initial_salt = '%x' % random.SystemRandom().getrandbits(96)
-
-        # the high number of iterations prevents an attacker from trying too
-        # many dictionary attacks once he has the hash.
-        # unfortunately, this has a bit of an impact on the user experience
-        # for now, security trumps convenience
-        app.initial_iterations = 2000
-        app.initial_keylength = 64
+        if None == app.config['PBKDF2_SALT']:
+            app.config['PBKDF2_SALT'] = \
+                '%x' % random.SystemRandom().getrandbits(96)
     else:
         # load api/ui blueprint
         from mmctlui import mmctlui

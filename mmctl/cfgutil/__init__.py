@@ -23,15 +23,13 @@ def index():
         # save configuration file
         conffile = os.path.join(current_app.instance_path, 'mmctl.conf')
         try:
+            current_app.config['ICE_STRING'] = form['icestring']
+            current_app.config['SERVER_HOSTNAME'] = form['hostname']
+            current_app.config['MMCTL_PASSWORD_KEY'] = form['pbdk']
+
             with open(conffile, 'w') as c:
                 c.write(render_template('mmctl.conf',
-                    dt=datetime.datetime.now(),
-                    ice_string=form['icestring'],
-                    server_hostname=form['hostname'],
-                    mmctl_password_key=form['pbdk'],
-                    pbkdf2_salt=current_app.initial_salt,
-                    pbkdf2_iterations=current_app.initial_iterations,
-                    pbkdf2_keylength=current_app.initial_keylength
+                    dt=datetime.datetime.now()
                 ))
         except IOError:
             return render_template('error.html',
@@ -47,9 +45,7 @@ def index():
     return render_template('index.html',
                            version=current_app.version,
                            form=form,
-                           initial_salt=current_app.initial_salt,
-                           initial_iterations=current_app.initial_iterations,
-                           initial_keylength=current_app.initial_keylength)
+                          )
 
 
 @cfgutil.route('/check-proxy/', methods=('POST',))

@@ -178,6 +178,15 @@ function init_ui() {
 	else
 		selectMainPage('server-page');
 
+	/* logout functionality */
+	$('#logoutlink').click(function() {
+		var opts = {
+			path: $AUTH_COOKIE_PATH
+		};
+		$.cookie($AUTH_COOKIE_NAME, '', opts);
+		window.location.replace(window.location.href);
+		return false;
+	});
 }
 
 function loadServerConfig(serverId, data) {

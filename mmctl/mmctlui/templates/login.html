@@ -10,9 +10,7 @@ followUpUrl = {{follow_up|tojson|safe}};
 pbkdf2Salt = {{config['PBKDF2_SALT']|tojson|safe}};
 pbkdf2Iterations = {{config['PBKDF2_ITERATIONS']|tojson|safe}};
 pbkdf2Keylength = {{config['PBKDF2_KEYLENGTH']|tojson|safe}};
-authCookieName = {{config['AUTH_COOKIE_NAME']|tojson|safe}};
 authCookieExpiry = {{config['AUTH_COOKIE_EXPIRY']|tojson|safe}};
-authCookiePath = {{url_for('mmctlui.index')|tojson|safe}};
 $(document).ready(function() {
 	$('#loginbutton').click(function() {
 		var loginButton = $(this);
@@ -28,13 +26,13 @@ $(document).ready(function() {
 			function(result) {
 				/* set cookie */
 				var opts = {
-					path: authCookiePath
+					path: $AUTH_COOKIE_PATH
 				};
 				if ($('#persist_session').attr('checked')) {
 					opts.expires = authCookieExpiry;
 				}
 
-				$.cookie(authCookieName, result, opts);
+				$.cookie($AUTH_COOKIE_NAME, result, opts);
 
 				/* redirect */
 				window.location.replace(followUpUrl);

@@ -25,6 +25,8 @@
 
 <script type="text/javascript">
 	$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+	$AUTH_COOKIE_NAME = {{config['AUTH_COOKIE_NAME']|tojson|safe }};
+	$AUTH_COOKIE_PATH = {{url_for('mmctlui.index')|tojson|safe}};
 </script>
 
 {% endblock %}

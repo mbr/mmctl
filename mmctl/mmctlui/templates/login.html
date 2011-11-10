@@ -12,6 +12,7 @@ pbkdf2Iterations = {{config['PBKDF2_ITERATIONS']|tojson|safe}};
 pbkdf2Keylength = {{config['PBKDF2_KEYLENGTH']|tojson|safe}};
 authCookieName = {{config['AUTH_COOKIE_NAME']|tojson|safe}};
 authCookieExpiry = {{config['AUTH_COOKIE_EXPIRY']|tojson|safe}};
+authCookiePath = {{url_for('mmctlui.index')|tojson|safe}};
 $(document).ready(function() {
 	$('#loginbutton').click(function() {
 		var loginButton = $(this);
@@ -26,7 +27,9 @@ $(document).ready(function() {
 			pbkdf2Keylength,
 			function(result) {
 				/* set cookie */
-				var opts = {};
+				var opts = {
+					path: authCookiePath
+				};
 				if ($('#persist_session').attr('checked')) {
 					opts.expires = authCookieExpiry;
 				}

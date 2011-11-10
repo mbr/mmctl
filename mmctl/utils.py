@@ -17,8 +17,8 @@ def require_auth(*rargs, **rkwargs):
            If not, abort with HTTP 403, or redirect to login page"""
         @wraps(f)
         def _f(*args, **kwargs):
-            if request.cookies.get('passkey', -1) !=\
-               current_app.config['MMCTL_PASSWORD_KEY']:
+            if request.cookies.get(current_app.config['AUTH_COOKIE_NAME'], -1)\
+               != current_app.config['MMCTL_PASSWORD_KEY']:
                 # mismatch
                 if rargs or rkwargs:
                     return redirect(url_for(*rargs, **rkwargs))

@@ -13,12 +13,22 @@ mmctlui = Blueprint('mmctlui', __name__,
                     static_folder='static')
 
 @mmctlui.route('/')
+@require_auth('mmctlui.login')
 def index():
     return render_template('index.html',
                            version=current_app.meta.getVersion()[3])
 
 
+@mmctlui.route('/login/')
+def login():
+    return render_template(
+        'login.html',
+        follow_up=url_for('mmctlui.index', _external=True)
+    )
+
+
 @mmctlui.route('/api/list-servers/')
+@require_auth()
 def list_servers():
     # compile list of servers
     servers = []
@@ -44,6 +54,7 @@ def list_servers():
 
 
 @mmctlui.route('/api/get-global-config/')
+@require_auth()
 def get_global_config():
     conf = current_app.meta.getDefaultConf()
 
@@ -51,6 +62,7 @@ def get_global_config():
 
 
 @mmctlui.route('/api/create-server/', methods=('POST',))
+@require_auth()
 def create_server():
     server = current_app.meta.newServer()
 
@@ -58,6 +70,7 @@ def create_server():
 
 
 @mmctlui.route('/api/delete-server/', methods=('POST',))
+@require_auth()
 def delete_server():
     server = current_app.meta.getServer(request.json['server_id'])
 
@@ -70,6 +83,7 @@ def delete_server():
 
 
 @mmctlui.route('/api/stop-server/', methods=('POST',))
+@require_auth()
 def stop_server():
     server = current_app.meta.getServer(request.json['server_id'])
     server.stop();
@@ -78,6 +92,7 @@ def stop_server():
 
 
 @mmctlui.route('/api/start-server/', methods=('POST',))
+@require_auth()
 def start_server():
     server = current_app.meta.getServer(request.json['server_id'])
     server.start();
@@ -86,6 +101,7 @@ def start_server():
 
 
 @mmctlui.route('/api/get-server-config/<int:server_id>/')
+@require_auth()
 def get_server_config(server_id):
     server = current_app.meta.getServer(server_id)
     defaultConfig = current_app.meta.getDefaultConf()
@@ -112,6 +128,7 @@ def get_server_config(server_id):
 
 @mmctlui.route('/api/get-server-log/<int:server_id>/')
 @mmctlui.route('/api/get-server-log/<int:server_id>/<int:page>/')
+@require_auth()
 def get_server_log(server_id, page):
     server = current_app.meta.getServer(server_id)
     log_entries = []
@@ -137,6 +154,7 @@ def get_server_log(server_id, page):
 
 
 @mmctlui.route('/api/save-server-config/<int:server_id>/', methods=('POST',))
+@require_auth()
 def save_server_config(server_id):
     server = current_app.meta.getServer(server_id)
 
@@ -147,6 +165,7 @@ def save_server_config(server_id):
 
 
 @mmctlui.route('/api/get-server-tree/<int:server_id>/')
+@require_auth()
 def get_server_tree(server_id):
     server = current_app.meta.getServer(server_id)
 

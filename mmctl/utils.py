@@ -1,10 +1,34 @@
 #!/usr/bin/env python
 # coding=utf8
 
+from functools import wraps
 from math import ceil
 import os
 
+from flask import request, redirect, abort, current_app, url_for
+
 import Ice
+
+def require_auth(*rargs, **rkwargs):
+    def _require_auth(f):
+        """Checks if the clients sent a valid MMCTL_PASSWORD_KEY as the
+           passkey cookie.
+
+           If not, abort with HTTP 403, or redirect to login page"""
+        @wraps(f)
+        def _f(*args, **kwargs):
+            if request.cookies.get('passkey', -1) !=\
+               current_app.config['MMCTL_PASSWORD_KEY']:
+                # mismatch
+                if rargs or rkwargs:
+                    return redirect(url_for(*rargs, **rkwargs))
+                abort(403)
+            else:
+                return f(*args, **kwargs)
+
+        return _f
+    return _require_auth
+
 
 class ClientPager(object):
     def __init__(self,

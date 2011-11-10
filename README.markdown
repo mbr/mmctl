@@ -1,6 +1,6 @@
 mmctl
 =====
-mmctl let's your administer Murmur, the [Mumble][1] server that currently comes without a default administration interface.
+mmctl let's you administrate Murmur, the [Mumble][1] server that currently comes without a default administration interface.
 
 Features
 --------
@@ -9,8 +9,8 @@ Features
 * Pure AJAX-interface that feels like a Desktop application
 * Looks great thanks to [Bootstrap][3]
 
-Status
-------
+Installing
+----------
 mmctl is currently under development. It's fully functional and working, but there aren't detailed instructions for installing it yet. Here's what you need:
 
 * It's a [Flask][4]-based WSGI app, so you need Python.

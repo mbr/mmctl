@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block jsglobal %}
+{{super()}}
+	$AUTH_COOKIE_NAME = {{config['AUTH_COOKIE_NAME']|tojson|safe }};
+	$AUTH_COOKIE_PATH = {{url_for('mmctlui.index')|tojson|safe}};
+{% endblock %}

@@ -5,7 +5,7 @@ import os
 from urlparse import urlparse
 
 from flask import Flask
-from flaskext.assets import Environment as AssetEnvironment, Bundle
+from flask.ext.assets import Environment as AssetEnvironment, Bundle
 
 import defaults
 from utils import load_meta
